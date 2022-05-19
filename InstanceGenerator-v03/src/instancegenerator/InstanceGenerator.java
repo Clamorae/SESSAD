@@ -29,7 +29,7 @@ public class InstanceGenerator {
     public static int NBR_INTERFACES = (int) (NBR_APPRENANTS/4 * 1.2);
     public static int NBR_FORMATIONS = NBR_APPRENANTS * NBR_FORMATIONS_PAR_SEMAINE;
 
-    public static String FILENAME = "instance-" + NBR_FORMATIONS + "formations.c";
+    public static String FILENAME = "instance-" + NBR_FORMATIONS + "formations.h";
 
     public static int NBR_COMPETENCES = 2;
     public static String NOMS_COMPETENCES[] = {
@@ -67,7 +67,6 @@ public class InstanceGenerator {
             writeSpecialiteInterfaces();
             writeCoord();
             writeFormation();
-            writeMain();
 
             textFileOutput.close();
         } catch (IOException ex) {
@@ -367,23 +366,6 @@ public class InstanceGenerator {
 //
 //    return 0 ;
 //}
-    private void writeMain() {
-        try {
-            textFileOutput.write("int main() {\n");
-            textFileOutput.write("                  \n");
-            textFileOutput.write("    printf(\"NBR_INTERFACES=%d\\n\",NBR_INTERFACES) ;\n");
-            textFileOutput.write("    printf(\"NBR_APPRENANTS=%d\\n\",NBR_APPRENANTS) ;\n");
-            textFileOutput.write("    printf(\"NBR_FORMATIONS=%d\\n\",NBR_FORMATIONS) ;\n");
-            textFileOutput.write("    printf(\"NBR_NODES=%d\\n\",NBR_NODES) ;\n");
-            textFileOutput.write("                  \n");
-            textFileOutput.write("    return 0 ;\n");
-            textFileOutput.write("}\n");
-            textFileOutput.write("                  \n");
-        } catch (IOException ex) {
-            Logger.getLogger(InstanceGenerator.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     /**
      *
      * @param string
