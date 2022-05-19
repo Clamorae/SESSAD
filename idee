@@ -1,8 +1,46 @@
 pas objet : C
 
-branch and bound
-comme little
-trouver penalité
+recherche tabou:
+solution pas opti mais rapide 
+avec suffisament d'itération solution acceptable
+genere premiere solution aléatoire
+
+solution = int{numsoigant corretpondant à [rdv]}
+
+tabou :
+    build solution random
+    evalue
+    ajt a liste tabou
+    tant que temps < 1min || nb d'iteration
+        check gauche+droite
+        verifie si tabou
+            calcule solution de chacun
+        prend le meilleur pas tabou
+        stock meilleur solution
+    print meilleur solution
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 array[compétence] avec place dans l'array = numcomp
 
@@ -12,7 +50,7 @@ int durée
 int abscisse
 int ordonnée
 int numcomp
-int numspé
+int numspé 
 p soignantaffecté
 p next
 p pre
@@ -24,6 +62,6 @@ lundi [rdv*8] : rdv
 *7
 bool isFulltime
 float distanceparcourue
-int nbheure
+int nb heure
 p next
 p pre
