@@ -4,7 +4,7 @@ HEADER	= main.h tabou.h
 FLAGS	 = -g -c -Wall
 
 all: $(OBJS)
-	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
+	$(CC) -g $(OBJS) -o test
 
 main.o: main.c
 	$(CC) $(FLAGS) main.c 
