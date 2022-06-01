@@ -1,19 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <stdbool.h>
 #include "main.h"
 #include "tabou.h"
-
-#define NBRDV 10
-#define NBSOIG 5
 
 /*
 This function will create the starting point of the tabou algorithm.
 */
-int* buildFirstSolution(int NBSOIG){
+int* buildFirstSolution(){
     int* solution = malloc (sizeof (int) * NBRDV);
-    int num;
     for (int i = 0; i < NBRDV; i++){
         solution[i] = (rand() % NBSOIG);
     }
@@ -30,14 +22,23 @@ void printSolution(int solution[NBRDV]){
     return;
 }
 
-void main(int argc, char *argv[]){
-    if (argc != 3){
-        printf("Veuillez suivre la syntaxe suivante : ./SESSAD file range") //ANCHOR modify when everything is up
-        return;
+int main(int argc, char *argv[]){
+    if (argc != 4){
+        printf("Veuillez suivre la syntaxe suivante : ./SESSAD file range iteration\n"); //ANCHOR modify when everything is up
+        return 1;
     }
-    
+    int range;
+    if(sscanf(argv[2], "%d", &range) != 1) {
+        printf("Range doit être un nombre entier \n");
+        return 1;
+    }
+    int iter;
+    if(sscanf(argv[3], "%d", &iter) != 1) {
+        printf("Range doit être un nombre entier \n");
+        return 1;
+    }
     srand(time(0));
-    int* solution = buildFirstSolution(NBSOIG);
-    tabouSearch(solution, range);
-    return;
+    int* solution = buildFirstSolution();
+    tabouSearch(solution, range, solution, 0.0,iter);
+    return 0;
 }
