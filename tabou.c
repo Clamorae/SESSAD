@@ -6,7 +6,7 @@ int* tabouSearch(int* currentSolution, int range, int* bestSolution, float bestS
     }
     int* newBest = findBestNeighbour(currentSolution, bestSolution, bestScore, range);
 
-    printf("%d\n",iteration);
+    //printf("%d\n",iteration);
     return tabouSearch(currentSolution,range,newBest,bestScore,iteration-1);
 }
 
@@ -16,7 +16,7 @@ int* findBestNeighbour(int* currentSolution, int* bestSolution, float bestScore,
     int j;
     for (int i = 0; i < range/2; i++){
         buffer = currentSolution;
-        printSolution(buffer);
+        //printSolution(buffer);
         //ANCHOR IF time create function buffer creation
         
         if (buffer[sizeof(buffer)==NBSOIG]){
@@ -59,7 +59,9 @@ int* findBestNeighbour(int* currentSolution, int* bestSolution, float bestScore,
     return  bestSolution;
 }
 
+
+
 float computeScore(int* solution,float bestScore){
-    printSolution(solution);
+    //printSolution(solution);
     return 0.0;
 }

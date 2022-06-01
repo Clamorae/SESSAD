@@ -5,9 +5,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define NBRDV 10
 #define NBSOIG 5
+
+
 /*
 This function will create the starting point of the taboul algorithm.
 */
