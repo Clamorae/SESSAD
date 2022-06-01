@@ -35,10 +35,13 @@ const char* getfield(char* line, int num)
     return NULL;
 }
 
-const char* getPosition(int x, int y){
+const char* getPosition(int x, int y,char* name){
     int i = 0;
+    char path[64];
+    strcpy(path,"./Instances/45-4/");
+    strcat(path,name);
     x++;
-    FILE* stream = fopen("./Instances/45-4/Intervenants.csv", "r");//ANCHOR remplacer par file en parmaetre
+    FILE* stream = fopen(path, "r");//ANCHOR remplacer par file en parmaetre
     char line[1024];
     while (fgets(line, 1024, stream)){
         char* tmp = strdup(line);
@@ -84,11 +87,13 @@ int main(int argc, char *argv[]){
     }
 
     srand(time(0));
-
-    for (int i = 0; i < 4; i++){
-        printf("%s\n",getPosition(0,i));
-    }
     
+    for (int i = 0; i < 4; i++){
+        for (int j = 0; j < 4; j++){
+            printf("%s ",getPosition(j,i,"Intervenants.csv"));
+        }
+        printf("\n");
+    }
 
     //lauching tabou
     int* solution = buildFirstSolution();
