@@ -9,7 +9,7 @@
 #define NBSOIG 5
 
 /*
-This function will create the starting point of the taboul algorithm.
+This function will create the starting point of the tabou algorithm.
 */
 int* buildFirstSolution(int NBSOIG){
     int* solution = malloc (sizeof (int) * NBRDV);
