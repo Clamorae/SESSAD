@@ -1,16 +1,16 @@
 #include "tabou.h"
 
-int* tabouSearch(int* currentSolution, int range, int* bestSolution, float bestScore, int iteration){
+int* tabouSearch(int* currentSolution, int range, int* bestSolution, float bestScore, int iteration, int intervenant){
     if (iteration==0){
         return bestSolution;
     }
-    int* newBest = findBestNeighbour(currentSolution, bestSolution, bestScore, range);
+    int* newBest = findBestNeighbour(currentSolution, bestSolution, bestScore, range, intervenant);
 
     //printf("%d\n",iteration);
-    return tabouSearch(currentSolution,range,newBest,bestScore,iteration-1);
+    return tabouSearch(currentSolution,range,newBest,bestScore,iteration-1, intervenant);
 }
 
-int* findBestNeighbour(int* currentSolution, int* bestSolution, float bestScore, int range){
+int* findBestNeighbour(int* currentSolution, int* bestSolution, float bestScore, int range, int intervenant){
     int* buffer;
     float bufferScore;
     int j;
@@ -31,7 +31,7 @@ int* findBestNeighbour(int* currentSolution, int* bestSolution, float bestScore,
             buffer[sizeof(buffer)]+=i;
         } 
         
-        bufferScore = computeScore(buffer,bestScore);
+        bufferScore = computeScore(buffer,bestScore, intervenant);
         if(bufferScore>bestScore){
             bestSolution = buffer;
             bestScore=bufferScore;
@@ -49,7 +49,7 @@ int* findBestNeighbour(int* currentSolution, int* bestSolution, float bestScore,
             buffer[sizeof(buffer)]+=i;
         } 
 
-        bufferScore = computeScore(buffer,bestScore);
+        bufferScore = computeScore(buffer,bestScore, intervenant);
         if(bufferScore>bestScore){
             bestSolution = buffer;
             bestScore=bufferScore;
@@ -57,11 +57,4 @@ int* findBestNeighbour(int* currentSolution, int* bestSolution, float bestScore,
 
     }
     return  bestSolution;
-}
-
-
-
-float computeScore(int* solution,float bestScore){
-    //printSolution(solution);
-    return 0.0;
 }

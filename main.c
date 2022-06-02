@@ -1,5 +1,4 @@
 #include "main.h"
-#include "tabou.h"
 
 /*
 This function will create the starting point of the tabou algorithm.
@@ -22,8 +21,7 @@ void printSolution(int solution[NBRDV]){
     return;
 }
 
-const char* getfield(char* line, int num)
-{
+const char* getfield(char* line, int num){
     const char* tok;
     for (tok = strtok(line, ",");
             tok && *tok;
@@ -90,13 +88,16 @@ int main(int argc, char *argv[]){
     
     for (int i = 0; i < 4; i++){
         for (int j = 0; j < 4; j++){
-            printf("%s ",getPosition(j,i,"Intervenants.csv"));
+            printf("%s",getPosition(j,i,"Intervenants.csv"));
         }
         printf("\n");
     }
 
+    int array[4] = {2,1,1,1};
+    float buffer = computeScore(array,12.0,4);
+
     //lauching tabou
-    int* solution = buildFirstSolution();
-    tabouSearch(solution, range, solution, 0.0,iter);
+    /*int* solution = buildFirstSolution();
+    tabouSearch(solution, range, solution, 0.0,iter,intervenant);*/
     return 0;
 }

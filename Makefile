@@ -16,14 +16,18 @@
 #clean:
 #	rm -f $(OBJS) $(OUT)
 clear: SESSAD.exe
+	rm score.o
 	rm tabou.o
 	rm main.o
 
 SESSAD.out: main.o tabou.o 
-	gcc -o SESSAD.exe main.o tabou.o 
+	gcc -o SESSAD.exe main.o tabou.o score.o
 
 main.o: main.c
 	gcc -c main.c
 
 tabou.o: tabou.c
 	gcc -c tabou.c
+
+score.o: score.c
+	gcc -c score.c
