@@ -37,15 +37,8 @@ float computeScore(int* solution,float bestScore, int intervenant){
     nonWorkmean = nonWorkmean/(intervenant*60);
     overtimeMean = overtimeMean/(intervenant*60);
 
-    for (int i = 1; i < intervenant+1; ++i) {
-        SDnonWork += pow(diffWork[i] - nonWorkmean, 2);
-    }
-    SDnonWork = sqrt(SDnonWork / intervenant)/60;
-
-    for (int i = 1; i < intervenant+1; ++i) {
-        SDover += pow(overtime[i] - overtimeMean, 2);
-    }
-    SDover = sqrt(SDover / intervenant)/60;
+    SDnonWork = standardDeviation(intervenant,nonWorkmean,diffWork);
+    SDover = standardDeviation(intervenant, overtimeMean, overtime);
     printf("%f,   %f\n%f,   %f",nonWorkmean ,SDnonWork ,overtimeMean,SDover);
                   
 
@@ -57,4 +50,12 @@ float computeScore(int* solution,float bestScore, int intervenant){
         return newScore;
     }
     
+}
+
+float standardDeviation(int intervenant, float mean, float* data){
+    float SD = 0;
+    for (int i = 1; i < intervenant+1; i++) {
+        SD += pow(data[i] - mean, 2);
+    }
+    return sqrt(SD / intervenant)/60;
 }

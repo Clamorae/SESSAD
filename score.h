@@ -12,4 +12,6 @@
 */
 float computeScore(int* solution,float bestScore, int intervenant);
 
+float standardDeviation(int intervenant, float mean, float* data);
+
 #endif
