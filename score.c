@@ -5,7 +5,7 @@ float computeScore(int* solution,float bestScore, int intervenant){
     float newScore = 0.0;
     int tempsTravail[intervenant+1];
     float distance[intervenant+1], nonWorkmean,SDnonWork, diffWork[intervenant+1], overtime[intervenant+1], SDover;
-    float mQuota=0.0, overtimeMean;
+    float mQuota=0.0, overtimeMean, distanceMean=0.0, SDdistance, overtimetot, distancetot;
     for (int i = 0; i < intervenant+1; i++){
         tempsTravail[i]=0;
     }
@@ -16,6 +16,7 @@ float computeScore(int* solution,float bestScore, int intervenant){
         float km = atof(getPosition(j+1,location,"Distances.csv"));
         tempsTravail[solution[j]] += (int)km*60/(50000);
         distance[solution[j]] += km;
+        distancetot += km ;
     }
 
     for (int i = 0; i <intervenant ; i++){
@@ -27,21 +28,24 @@ float computeScore(int* solution,float bestScore, int intervenant){
         diffWork[i] = atof(getPosition(3,i-1,"Intervenants.csv"))*60 - tempsTravail[i];
         if (diffWork[i]<0){
             overtime[i] = diffWork[i] * -1 ;
-            overtimeMean += overtime[i];
+            overtimetot += overtime[i];
         }else{
             nonWorkmean += diffWork[i];
             overtime[i] = 0;
         }
-        printf("%f\n",diffWork[i]);
     }
     nonWorkmean = nonWorkmean/(intervenant*60);
-    overtimeMean = overtimeMean/(intervenant*60);
+    overtimeMean = overtimetot/(intervenant*60);
+    distanceMean = distancetot/(intervenant);
 
     SDnonWork = standardDeviation(intervenant,nonWorkmean,diffWork);
     SDover = standardDeviation(intervenant, overtimeMean, overtime);
-    printf("%f,   %f\n%f,   %f",nonWorkmean ,SDnonWork ,overtimeMean,SDover);
-                  
-
+    SDdistance = standardDeviation(intervenant, distanceMean, distance);
+    printf("%f,   %f\n%f,   %f\n%f,   %f\n",nonWorkmean ,SDnonWork ,overtimeMean,SDover,distanceMean,SDdistance);
+    
+         
+    newScore = (mQuota*SDnonWork+(100/overtimetot)*SDover+(100/distancetot)*SDdistance)/3;
+    printf("%f\n",newScore);
 
 
     if (bestScore>newScore){
