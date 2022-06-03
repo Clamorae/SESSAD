@@ -18,11 +18,13 @@ struct tabouItem{
 /*
 This is the core of the tabou search where ... TODO
 */
-int* tabouSearch(int* currentSolution, int range, int* bestSolution, float bestScore, int iteration, int intervenant);
+void tabouSearch(int* solution, int iter, int intervenant, int missions);
 
 /*
 this function is gonna take a solution and build his neighbour then call a function to get the best one and check if it's the new best solution
 */
-int* findBestNeighbour(int* currentSolution, int* bestSolution, float bestScore, int range, int intervenant);
+struct tabouItem* findBestNeighbor(int range, int* solution, int missions, int intervenant);
+
+float isSolutionViable(int* solution, int missions, int intervenant);
 
 #endif

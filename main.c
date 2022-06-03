@@ -3,22 +3,20 @@
 /*
 This function will create the starting point of the tabou algorithm.
 */
-int* buildFirstSolution(){
-    int* solution = malloc (sizeof (int) * NBRDV);
-    for (int i = 0; i < NBRDV; i++){
-        solution[i] = (rand() % NBSOIG);
+int* buildFirstSolution(int intervenant, int missions){
+    int* solution = malloc (sizeof (int) * missions);
+    int j = 1 ;
+    for (int i = 0; i < missions; i++){
+        solution[i] = j;
+        if (j==intervenant){
+            j=1;
+        }else{
+            j++;
+        }
+        printf("%d, ",solution[i]);
     }
+    printf("\n");
     return solution;
-}
-
-/*
-This function take a solution as arguement and will display it with it's parameter
-*/
-void printSolution(int solution[NBRDV]){
-    for (int i = 0; i < NBRDV; i++){
-        printf("%d",solution[i]);
-    }
-    return;
 }
 
 const char* getfield(char* line, int num){
@@ -55,49 +53,36 @@ const char* getPosition(int x, int y,char* name){
 int main(int argc, char *argv[]){
     
     //checking the base parameter
-    if (argc != 6){
-        printf("Veuillez suivre la syntaxe suivante : ./SESSAD directory range iteration intervenants missions\n"); //ANCHOR modify dir name
-        return 1;
-    }
-
-    int range;
-    if(sscanf(argv[2], "%d", &range) != 1) {
-        printf("Range doit être un nombre entier \n");
+    if (argc != 5){
+        printf("Veuillez suivre la syntaxe suivante : ./SESSAD directory iteration intervenants missions\n"); //ANCHOR modify dir name
         return 1;
     }
 
     int iter;
-    if(sscanf(argv[3], "%d", &iter) != 1) {
+    if(sscanf(argv[2], "%d", &iter) != 1) {
         printf("Range doit être un nombre entier \n");
         return 1;
     }
 
     int intervenant;
-    if(sscanf(argv[4], "%d", &intervenant) != 1) {
+    if(sscanf(argv[3], "%d", &intervenant) != 1) {
         printf("Intervenants doit être un nombre entier \n");
         return 1;
     }
 
     int missions;
-    if(sscanf(argv[5], "%d", &missions) != 1) {
+    if(sscanf(argv[4], "%d", &missions) != 1) {
         printf("Missions doit être un nombre entier \n");
         return 1;
     }
 
     srand(time(0));
-    
-    for (int i = 0; i < 4; i++){
-        for (int j = 0; j < 4; j++){
-            printf("%s",getPosition(j,i,"Intervenants.csv"));
-        }
-        printf("\n");
-    }
 
-    int array[32] = {2,0,1,1,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,3,3,3,3,3,3};
-    float buffer = computeScore(array,12.0,4);
+    //int array[45] = {2,4,2,4,2,1,3,1,3,4,2,4,2,1,3,1,3,1,2,4,2,4,1,3,1,3,2,4,2,4,1,3,1,3,1,2,4,2,4,2,3,1,3,1,2};
 
     //lauching tabou
-    /*int* solution = buildFirstSolution();
-    tabouSearch(solution, range, solution, 0.0,iter,intervenant);*/
+    int* solution = buildFirstSolution(intervenant, missions);
+    tabouSearch(array, iter, intervenant, missions);
+    free(solution);
     return 0;
 }

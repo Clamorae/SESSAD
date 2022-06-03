@@ -1,9 +1,9 @@
 #include "score.h"
 
 
-float computeScore(int* solution,float bestScore, int intervenant){
+float computeFitnessEmployee(int* solution, int intervenant){
     float newScore = 0.0;
-    int tempsTravail[intervenant+1];
+    int tempsTravail[intervenant+1] ;
     float distance[intervenant+1], nonWorkmean,SDnonWork, diffWork[intervenant+1], overtime[intervenant+1], SDover;
     float mQuota=0.0, overtimeMean, distanceMean=0.0, SDdistance, overtimetot, distancetot;
     for (int i = 0; i < intervenant+1; i++){
@@ -44,16 +44,7 @@ float computeScore(int* solution,float bestScore, int intervenant){
     printf("%f,   %f\n%f,   %f\n%f,   %f\n",nonWorkmean ,SDnonWork ,overtimeMean,SDover,distanceMean,SDdistance);
     
          
-    newScore = (mQuota*SDnonWork+(100/overtimetot)*SDover+(100/distancetot)*SDdistance)/3;
-    printf("%f\n",newScore);
-
-
-    if (bestScore>newScore){
-        return bestScore;
-    }else{
-        return newScore;
-    }
-    
+    return (mQuota*SDnonWork+(100/overtimetot)*SDover+(100/distancetot)*SDdistance)/3;
 }
 
 float standardDeviation(int intervenant, float mean, float* data){

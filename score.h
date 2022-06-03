@@ -10,7 +10,7 @@
 /*
     this function will take the solution and build it's fitness
 */
-float computeScore(int* solution,float bestScore, int intervenant);
+float computeFitnessEmployee(int* solution, int intervenant);
 
 float standardDeviation(int intervenant, float mean, float* data);
 
