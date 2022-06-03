@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
         printf("\n");
     }
 
-    int array[4] = {2,1,1,1};
+    int array[32] = {2,0,1,1,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3};
     float buffer = computeScore(array,12.0,4);
 
     //lauching tabou
