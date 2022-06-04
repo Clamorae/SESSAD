@@ -19,33 +19,60 @@ int* buildFirstSolution(int intervenant, int missions){
     return solution;
 }
 
-const char* getfield(char* line, int num){
-    const char* tok;
-    for (tok = strtok(line, ",");
-            tok && *tok;
-            tok = strtok(NULL, ",\n"))
-    {
-        if (!--num)
-            return tok;
-    }
-    return NULL;
-}
-
-const char* getPosition(int x, int y,char* name){
-    int i = 0;
-    char path[64];
+char* getPosition(int x, int y,char* name){
+    int count = 0;
+    char path[124];
+    char* line = malloc(sizeof(char)*1024);
+    char* result = malloc(sizeof(char)*1024);
     strcpy(path,"./Instances/45-4/");
     strcat(path,name);
-    x++;
-    FILE* stream = fopen(path, "r");//ANCHOR remplacer par file en parmaetre
-    char line[1024];
-    while (fgets(line, 1024, stream)){
+    FILE* file = fopen(path, "r");//ANCHOR remplacer par file en parmaetre
+
+    while (count != y)
+    {
+        fgets(line,256,file);
+        count++;
+    }
+    fgets(line, 256, file);
+    for (int i = 0; i < x; i++){
+        result = strchr(line, ',');
+        strncpy(line,result +1 ,1024);
+    }
+    result = strchr(line, ',');
+    count = result - line;
+    
+    //This is horrible but I can't find another wa to do this ANCHOR
+    char buffer[count];
+    strncpy(buffer,line ,count);
+    strcpy(result,buffer);
+    printf("%s\n",result);
+    
+    
+    fclose(file);
+    free(line);
+    return result;
+}
+
+void read_csv(int row, int col, char *filename, char ***data){
+	FILE *file;
+	file = fopen(filename, "r");
+
+	int i = 0;
+    char line[4098];
+	while (fgets(line, 4098, file) && (i < row))
+    {
+    	// double row[ssParams->nreal + 1];
         char* tmp = strdup(line);
-        if (i==y){
-            return getfield(tmp, x);
-        }
-        i++;
+	    int j = 0;
+	    const char* tok;
+	    for (tok = strtok(line, ","); tok && *tok; j++, tok = strtok(NULL, ",")){
+	        strcpy(data[i][j],tok);
+	        printf("%s,", data[i][j]);
+	    }
+	    printf("\n");
+
         free(tmp);
+        i++;
     }
 }
 
@@ -74,16 +101,69 @@ int main(int argc, char *argv[]){
     if(sscanf(argv[4], "%d", &missions) != 1) {
         printf("Missions doit être un nombre entier \n");
         return 1;
-    }
+    }    
+
+    char ***distancesCSV;
+	distancesCSV = (char ***)malloc((missions+1) * sizeof(char **));
+	for (int i = 0; i < (missions+1); ++i){
+		distancesCSV[i] = (char **)malloc((missions+1)* sizeof(char*));
+        for (int j =0; j < (missions+1); j++){
+            distancesCSV[i][j] = (char *)malloc((missions+1) * sizeof(char));
+        }
+	}
+
+    char ***intervenantCSV;
+    intervenantCSV = (char ***)malloc(intervenant * sizeof(char **));
+	for (int i = 0; i < intervenant; ++i){
+		intervenantCSV[i] = (char **)malloc(4 * sizeof(char*));
+        for (int j =0; j < 4; j++){
+            intervenantCSV[i][j] = (char *)malloc(32 * sizeof(char));
+        }
+	}
+
+    char ***missionCSV;
+    missionCSV = (char ***)malloc(missions * sizeof(char **));
+	for (int i = 0; i < missions; ++i){
+		missionCSV[i] = (char **)malloc(6 * sizeof(char*));
+        for (int j =0; j < 6; j++){
+            missionCSV[i][j] = (char *)malloc(32 * sizeof(char));
+        }
+	}
+
+    read_csv(missions+1,missions+1,"Instances/45-4/Distances.csv",distancesCSV);
+    read_csv(intervenant,4,"Instances/45-4/Intervenants.csv",intervenantCSV);
+    read_csv(missions,6,"Instances/45-4/Missions.csv",missionCSV);
+    
 
     srand(time(0));
 
-    int array[45] = {1,3,1,3,1,2,4,2,4,3,1,3,1,2,4,2,4,2,1,3,1,3,2,4,2,4,1,3,1,3,2,4,2,4,2,1,3,1,3,1,4,2,4,2,1};
+    //int array[45] = {1,3,1,3,1,2,4,2,4,3,1,3,1,2,4,2,4,2,1,3,1,3,2,4,2,4,1,3,1,3,2,4,2,4,2,1,3,1,3,1,4,2,4,2,1};
 
     //lauching tabou
     //int* solution = buildFirstSolution(intervenant, missions);
     
-    tabouSearch(array, iter, intervenant, missions);
+    //tabouSearch(array, iter, intervenant, missions);
     //free(solution);
+    for (int i = 0; i < missions+1; ++i){
+        for (int j =0; j < missions+1; j++){
+            free(distancesCSV[i][j]);
+        }
+        free(distancesCSV[i]);
+	}
+    free(distancesCSV);
+	for (int i = 0; i < intervenant; ++i){
+        for (int j =0; j < 4; j++){
+            free(intervenantCSV[i][j]);
+        }
+        free(intervenantCSV[i]);
+	}
+    free(intervenantCSV);
+    for (int i = 0; i < missions; ++i){
+        for (int j =0; j < 6; j++){
+            free(missionCSV[i][j]);
+        }
+        free(missionCSV[i]);
+	}
+    free(missionCSV);
     return 0;
 }

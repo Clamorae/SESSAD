@@ -57,7 +57,6 @@ struct tabouItem* findBestNeighbor(int range, int* solution, int missions,int in
         printf("\n");
 
         malus = isSolutionViable(solcpy, missions, intervenant);
-        //printf("%f\n",malus);
         if (malus<200){
             //newScore = computeFitnessEmployee(solution, intervenant);
             if (newScore + malus >bestScore){
@@ -70,7 +69,7 @@ struct tabouItem* findBestNeighbor(int range, int* solution, int missions,int in
     }
     //TODO neg solcpy
     free(solcpy);
-
+    return 0;
 }
 
 float isSolutionViable(int* solution, int missions, int intervenant){
@@ -90,7 +89,7 @@ float isSolutionViable(int* solution, int missions, int intervenant){
             malus += 5.0;
         }
         // mauvaise comp
-        printf("%d: %s ? %s/%s\n",i,getPosition(4,i,"Missions.csv"),getPosition(1,solution[i],"Intervenants.csv"),getPosition(4,6,"Missions.csv"));
+        //printf("%d: %s ? %s/%s\n",i,getPosition(4,i,"Missions.csv"),getPosition(1,solution[i],"Intervenants.csv"),getPosition(4,6,"Missions.csv"));
         if (strcmp(getPosition(4,i,"Missions.csv"),getPosition(1,solution[i],"Intervenants.csv"))!=0){
             return 200.0;
         }
@@ -102,6 +101,7 @@ float isSolutionViable(int* solution, int missions, int intervenant){
             }
             //si jour différent
             if (atoi(getPosition(1,lastMission[solution[i]],"Missions.csv")) != atoi(getPosition(1,i,"Missions"))){
+                printf("in\n");
                 //amplitude horaire
                 if ((atoi(getPosition(3,lastMission[solution[i]],"Missions.csv")) - atoi(getPosition(2,firstMission[solution[i]],"Missions.csv")))>720){
                     return 200.0;
@@ -117,6 +117,7 @@ float isSolutionViable(int* solution, int missions, int intervenant){
                 firstMission[solution[i]] = i;
             }
         }else{
+            printf("out\n");
             firstMission[solution[i]] = i;
         }
         workTime[solution[i]] += (atoi(getPosition(3,lastMission[solution[i]],"Missions.csv")) - atoi(getPosition(2,lastMission[solution[i]],"Missions.csv")));
