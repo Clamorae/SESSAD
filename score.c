@@ -1,7 +1,7 @@
 #include "score.h"
 
 
-float computeFitnessEmployee(int* solution, int intervenant){
+float computeFitnessEmployee(int* solution, int intervenant, char*** distancesCSV, char*** missionsCSV, char*** intervenantCSV){
     float newScore = 0.0;
     int tempsTravail[intervenant+1] ;
     float distance[intervenant+1], nonWorkmean,SDnonWork, diffWork[intervenant+1], overtime[intervenant+1], SDover;
@@ -12,20 +12,20 @@ float computeFitnessEmployee(int* solution, int intervenant){
     
     int location = 0;
     for (int j = 0; j <32; j++){//ANCHOR fix number of mission (adaptability)
-        tempsTravail[solution[j]] += atoi(getPosition(3,j,"Missions.csv")) - atoi(getPosition(2,j,"Missions.csv")); 
-        float km = atof(getPosition(j+1,location,"Distances.csv"));
+        tempsTravail[solution[j]] += atoi(missionsCSV[3][j]) - atoi(missionsCSV[2][j]); 
+        float km = atof(distancesCSV[j+1][location]);
         tempsTravail[solution[j]] += (int)km*60/(50000);
         distance[solution[j]] += km;
         distancetot += km ;
     }
 
     for (int i = 0; i <intervenant ; i++){
-        mQuota += atof(getPosition(3,i,"Intervenants.csv"));
+        mQuota += atof(intervenantCSV[3][i]);
     }
     mQuota = 100/ (mQuota / intervenant);
 
     for (int i = 1; i < intervenant+1; i++){
-        diffWork[i] = atof(getPosition(3,i-1,"Intervenants.csv"))*60 - tempsTravail[i];
+        diffWork[i] = atof(intervenantCSV[3][i-1])*60 - tempsTravail[i];
         if (diffWork[i]<0){
             overtime[i] = diffWork[i] * -1 ;
             overtimetot += overtime[i];

@@ -19,40 +19,6 @@ int* buildFirstSolution(int intervenant, int missions){
     return solution;
 }
 
-char* getPosition(int x, int y,char* name){
-    int count = 0;
-    char path[124];
-    char* line = malloc(sizeof(char)*1024);
-    char* result = malloc(sizeof(char)*1024);
-    strcpy(path,"./Instances/45-4/");
-    strcat(path,name);
-    FILE* file = fopen(path, "r");//ANCHOR remplacer par file en parmaetre
-
-    while (count != y)
-    {
-        fgets(line,256,file);
-        count++;
-    }
-    fgets(line, 256, file);
-    for (int i = 0; i < x; i++){
-        result = strchr(line, ',');
-        strncpy(line,result +1 ,1024);
-    }
-    result = strchr(line, ',');
-    count = result - line;
-    
-    //This is horrible but I can't find another wa to do this ANCHOR
-    char buffer[count];
-    strncpy(buffer,line ,count);
-    strcpy(result,buffer);
-    printf("%s\n",result);
-    
-    
-    fclose(file);
-    free(line);
-    return result;
-}
-
 void read_csv(int row, int col, char *filename, char ***data){
 	FILE *file;
 	file = fopen(filename, "r");
@@ -137,12 +103,12 @@ int main(int argc, char *argv[]){
 
     srand(time(0));
 
-    //int array[45] = {1,3,1,3,1,2,4,2,4,3,1,3,1,2,4,2,4,2,1,3,1,3,2,4,2,4,1,3,1,3,2,4,2,4,2,1,3,1,3,1,4,2,4,2,1};
+    int array[45] = {1,3,1,3,1,2,4,2,4,3,1,3,1,2,4,2,4,2,1,3,1,3,2,4,2,4,1,3,1,3,2,4,2,4,2,1,3,1,3,1,4,2,4,2,1};
 
     //lauching tabou
     //int* solution = buildFirstSolution(intervenant, missions);
     
-    //tabouSearch(array, iter, intervenant, missions);
+    tabouSearch(array, iter, intervenant, missions, distancesCSV, missionCSV, intervenantCSV);
     //free(solution);
     for (int i = 0; i < missions+1; ++i){
         for (int j =0; j < missions+1; j++){
