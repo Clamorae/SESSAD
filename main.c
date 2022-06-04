@@ -78,11 +78,12 @@ int main(int argc, char *argv[]){
 
     srand(time(0));
 
-    //int array[45] = {2,4,2,4,2,1,3,1,3,4,2,4,2,1,3,1,3,1,2,4,2,4,1,3,1,3,2,4,2,4,1,3,1,3,1,2,4,2,4,2,3,1,3,1,2};
+    int array[45] = {1,3,1,3,1,2,4,2,4,3,1,3,1,2,4,2,4,2,1,3,1,3,2,4,2,4,1,3,1,3,2,4,2,4,2,1,3,1,3,1,4,2,4,2,1};
 
     //lauching tabou
-    int* solution = buildFirstSolution(intervenant, missions);
+    //int* solution = buildFirstSolution(intervenant, missions);
+    
     tabouSearch(array, iter, intervenant, missions);
-    free(solution);
+    //free(solution);
     return 0;
 }

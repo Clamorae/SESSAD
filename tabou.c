@@ -90,8 +90,8 @@ float isSolutionViable(int* solution, int missions, int intervenant){
             malus += 5.0;
         }
         // mauvaise comp
+        printf("%d: %s ? %s/%s\n",i,getPosition(4,i,"Missions.csv"),getPosition(1,solution[i],"Intervenants.csv"),getPosition(4,6,"Missions.csv"));
         if (strcmp(getPosition(4,i,"Missions.csv"),getPosition(1,solution[i],"Intervenants.csv"))!=0){
-            printf("%f\n",malus);
             return 200.0;
         }
         if (lastMission[solution[i]]!=0){
