@@ -1,0 +1,6 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/home/users/qtrombin/Bureau/SESSAD'
+ 
+cc  main.o tabou.o score.o -o test -lm
+make: Leaving directory '/home/users/qtrombin/Bureau/SESSAD'
+ 

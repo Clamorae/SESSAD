@@ -107,7 +107,7 @@ struct tabouItem* findBestNeighbor(int range, int *solution, int missions, int i
         }
 
         malus = isSolutionViable(solcpy, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
-        //newScore = computeFitnessEmployee(solution, intervenant, distancesCSV, missionCSV, intervenantCSV);
+        newScore = computeFitnessEmployee(solution, intervenant, distancesCSV, missionCSV, intervenantCSV);
         if (newScore + malus < bestScore)
         {
             bestScore = newScore+malus;
