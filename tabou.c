@@ -3,47 +3,76 @@
 void tabouSearch(int *solution, int iter, int intervenant, int missions, char ***distancesCSV, char ***missionCSV, char ***intervenantCSV)
 {
     int tabouSize = 20;
-    int range = 5;
+    int range = 100;
     struct tabouItem *tabouHead = (struct tabouItem *)malloc(sizeof(struct tabouItem));
     struct tabouItem *tabouBuffer = (struct tabouItem *)malloc(sizeof(struct tabouItem));
-    tabouHead->sol = solution;
-    tabouHead->score = 200.0;
+    struct tabouItem *tabouClear = (struct tabouItem *)malloc(sizeof(struct tabouItem));
+    int** finalSol = (int**)malloc(sizeof(int*)*10);
+    for (int i = 0; i < 10; ++i){
+		finalSol[i] = (int*)malloc(missions* sizeof(int));
+    } 
+    float finalScore[10];
+    for (int i = 0; i < 9; i++)
+    {
+        finalScore[i] = 9999.0;
+    }
+    tabouHead->sol = solution; 
+    tabouHead->score = isSolutionViable(solution,missions,intervenant,distancesCSV,missionCSV,intervenantCSV);
+    finalScore[9] = tabouHead->score;
+    memcpy(finalSol[9],solution,sizeof(int)*missions);
     for (int i = 0; i < iter; i++)
     {
-        if (i < tabouSize)
-        {
+
+        printf("%d/%d", i, iter );
+        printf("\n");
             if (i == 0)
             {
                 tabouHead->next = findBestNeighbor(range, tabouHead->sol, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
+                tabouBuffer = tabouHead->next;
             }
             else if (i < tabouSize)
             {
-                tabouBuffer = tabouHead->next;
+                
+                /*tabouBuffer = tabouHead->next;
                 for (int j = 0; j < i - 1; i++)
                 {
                     tabouBuffer = tabouBuffer->next;
-                }
+                }*/
                 tabouBuffer->next = findBestNeighbor(range, tabouBuffer->sol, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
+                tabouBuffer = tabouBuffer->next;
             }
             else
             {
+                tabouClear = tabouHead;
                 tabouHead = tabouHead->next;
-                tabouBuffer = tabouHead;
-                free(tabouBuffer);
-                for (int i = 0; i < tabouSize - 1; i++)
-                {
-                    tabouBuffer = tabouBuffer->next;
-                }
+                free(tabouClear);
                 tabouBuffer->next = findBestNeighbor(range, tabouBuffer->sol, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
+                tabouBuffer = tabouBuffer->next;
             }
+        if(tabouBuffer->score<finalScore[0]){
+            finalScore[0] = tabouBuffer->score;
+            memcpy(finalSol[0],tabouBuffer->sol,sizeof(int)*missions);
+            for (int j = 1; j < 10; j++)
+            {
+                if(tabouBuffer->score<finalScore[j]){
+                    finalScore[j-1]=finalScore[j];
+                    memcpy(finalSol[j-1],finalSol[j],sizeof(int)*missions);
+                    finalScore[j] = tabouBuffer->score;
+                    memcpy(finalSol[j],tabouBuffer->sol,sizeof(int)*missions);
+                }else{
+                    j=10;
+                }
+            }            
         }
-        printf("\n");
-        for (int j = 0; j < missions; j++)
-        {
-            printf("%d, ", tabouHead->next->sol[j]);
-        }
-        printf("\n");
     }
+    printf("bestsol are :\n");
+    for (int i = 0; i < 10; i++){
+        for (int j = 0; j < missions; j++){
+            printf("%d, ",finalSol[i][j]);
+        }
+        printf(": %f\n",finalScore[i]);
+    }
+    
 }
 
 struct tabouItem* findBestNeighbor(int range, int *solution, int missions, int intervenant, char ***distancesCSV, char ***missionCSV, char ***intervenantCSV)
@@ -51,7 +80,7 @@ struct tabouItem* findBestNeighbor(int range, int *solution, int missions, int i
     int *solcpy = (int *)malloc(sizeof(int) * missions);
     memcpy(solcpy, solution, sizeof(int) * missions);
     int *bestNeighbour = (int *)malloc(sizeof(int) * missions);
-    float bestScore = 999999999.0, newScore = 0.0, malus;
+    float bestScore = 9999.0, newScore = 0.0, malus;
     int x;
     for (int i = 0; i < range; i++)
     {//ANCHOR si suivant correspond pas à comp delete direct
@@ -77,18 +106,11 @@ struct tabouItem* findBestNeighbor(int range, int *solution, int missions, int i
             solcpy[missions - 1] += 1;
         }
 
-        for (int j = 0; j < missions; j++)
-        {
-            printf("%d, ", solcpy[j]);
-        }
-        printf("\n");
-
         malus = isSolutionViable(solcpy, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
-        
         //newScore = computeFitnessEmployee(solution, intervenant, distancesCSV, missionCSV, intervenantCSV);
         if (newScore + malus < bestScore)
         {
-            bestScore = newScore;
+            bestScore = newScore+malus;
             memcpy(bestNeighbour, solcpy, sizeof(int) * missions);
         }
     }
@@ -116,12 +138,13 @@ float isSolutionViable(int *solution, int missions, int intervenant, char ***dis
 
     for (int i = 0; i < missions; i++)
     {
-        if (solution[i]==0)
+        if (solution[i]<1)
         {
-            malus+=5.0;
+            malus = malus + 5.0;
         }
         
     }
+    printf("\n");
     return malus;
 } 
     /*for (int i = 0; i < intervenant; i++)

@@ -33,9 +33,9 @@ void read_csv(int row, int col, char *filename, char ***data){
 	    const char* tok;
 	    for (tok = strtok(line, ","); tok && *tok; j++, tok = strtok(NULL, ",")){
 	        strcpy(data[i][j],tok);
-	        printf("%s,", data[i][j]);
+	        //printf("%s,", data[i][j]);
 	    }
-	    printf("\n");
+	    //printf("\n");
 
         free(tmp);
         i++;
