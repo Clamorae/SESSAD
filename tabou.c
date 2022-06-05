@@ -37,15 +37,21 @@ void tabouSearch(int *solution, int iter, int intervenant, int missions, char **
                 tabouBuffer->next = findBestNeighbor(range, tabouBuffer->sol, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
             }
         }
+        printf("\n");
+        for (int j = 0; j < missions; j++)
+        {
+            printf("%d, ", tabouHead->next->sol[j]);
+        }
+        printf("\n");
     }
 }
 
-struct tabouItem *findBestNeighbor(int range, int *solution, int missions, int intervenant, char ***distancesCSV, char ***missionCSV, char ***intervenantCSV)
+struct tabouItem* findBestNeighbor(int range, int *solution, int missions, int intervenant, char ***distancesCSV, char ***missionCSV, char ***intervenantCSV)
 {
     int *solcpy = (int *)malloc(sizeof(int) * missions);
     memcpy(solcpy, solution, sizeof(int) * missions);
     int *bestNeighbour = (int *)malloc(sizeof(int) * missions);
-    float bestScore = 200.0, newScore = 0.0, malus;
+    float bestScore = 999999999.0, newScore = 0.0, malus;
     int x;
     for (int i = 0; i < range; i++)
     {//ANCHOR si suivant correspond pas à comp delete direct
@@ -71,31 +77,25 @@ struct tabouItem *findBestNeighbor(int range, int *solution, int missions, int i
             solcpy[missions - 1] += 1;
         }
 
-        /*for (int j = 0; j < missions; j++)
+        for (int j = 0; j < missions; j++)
         {
             printf("%d, ", solcpy[j]);
         }
-        printf("\n");*/
+        printf("\n");
 
         malus = isSolutionViable(solcpy, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
-        if (malus < 200)
+        
+        //newScore = computeFitnessEmployee(solution, intervenant, distancesCSV, missionCSV, intervenantCSV);
+        if (newScore + malus < bestScore)
         {
-            //newScore = computeFitnessEmployee(solution, intervenant, distancesCSV, missionCSV, intervenantCSV);
-            if (newScore + malus > bestScore)
-            {
-                bestScore = newScore;
-                memcpy(bestNeighbour, solcpy, sizeof(int) * missions);
-            }
-        }
-        else
-        {
-            range += 1;
+            bestScore = newScore;
+            memcpy(bestNeighbour, solcpy, sizeof(int) * missions);
         }
     }
+    
     struct tabouItem *best = (struct tabouItem *)malloc(sizeof(struct tabouItem));
     best->score = bestScore;
-    memcpy(best->sol ,bestNeighbour, sizeof(int) * missions);
-    printf("zarma\n");
+    best->sol = bestNeighbour;
     // TODO neg solcpy
     free(solcpy);
     return best;
@@ -116,6 +116,24 @@ float isSolutionViable(int *solution, int missions, int intervenant, char ***dis
 
     for (int i = 0; i < missions; i++)
     {
+        if (solution[i]==0)
+        {
+            malus+=5.0;
+        }
+        
+    }
+    return malus;
+} 
+    /*for (int i = 0; i < intervenant; i++)
+    {
+        lastMission[i] = 0;
+        firstMission[i] = 0;
+        workTime[i] = 0;
+    }
+
+    for (int i = 0; i < missions; i++)
+    {
+        printf("%d\n",i);
         // non affecté
         if (solution[i] == 0)
         {
@@ -124,7 +142,7 @@ float isSolutionViable(int *solution, int missions, int intervenant, char ***dis
         // mauvaise comp
         if (strcmp(missionsCSV[4][i], intervenantCSV[1][solution[i]]) != 0)
         {
-            return 200.0;
+            malus +=5000.0;
         }
         if (lastMission[solution[i]] != 0)
         {
@@ -132,33 +150,31 @@ float isSolutionViable(int *solution, int missions, int intervenant, char ***dis
 
             if (0 > (atof(missionsCSV[2][i]) - (atof(missionsCSV[3][lastMission[solution[i]]])) + (atof(distancesCSV[lastMission[solution[i]]][i]) * 60 / (50000))))
                 {
-                    return 200.0;
+                    malus+= 5000.0;
                 }
             // si jour différent
             if (atoi(missionsCSV[1][lastMission[solution[i]]]) != atoi(missionsCSV[1][i]))
             {
-                printf("in\n");
                 // amplitude horaire
                 if ((atoi(missionsCSV[3][lastMission[solution[i]]]) - atoi(missionsCSV[2][lastMission[solution[i]]])) > 720)
                 {
-                    return 200.0;
+                    malus+= 200.0;
                 }
                 // heure max plein temps
                 if (workTime[solution[i]] > 480)
                 {
-                    return 200.0;
+                    malus+= 200.0;
                 }
                 // heure max mi-temps
                 if (24 == atoi(intervenantCSV[3][solution[i]]) && workTime[solution[i]] > 360)
                 {
-                    return 200.0;
+                    malus+= 200.0;
                 }
                 firstMission[solution[i]] = i;
             }
         }
         else
         {
-            printf("out\n");
             firstMission[solution[i]] = i;
         }
         workTime[solution[i]] += (atoi(missionsCSV[3][lastMission[solution[i]]]) - atoi(missionsCSV[2][lastMission[solution[i]]]));
@@ -168,4 +184,4 @@ float isSolutionViable(int *solution, int missions, int intervenant, char ***dis
         // TODO 1h de pause entre 12 et 14h
     }
     return malus;
-}
+}*/
