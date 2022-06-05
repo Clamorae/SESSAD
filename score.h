@@ -10,7 +10,7 @@
 /*
     this function will take the solution and build it's fitness
 */
-float computeFitnessEmployee(int* solution, int intervenant, char*** distancesCSV, char*** missionsCSV, char*** intervenantCSV);
+float computeFitnessEmployee(int* solution, int intervenant,int missions, char*** distancesCSV, char*** missionsCSV, char*** intervenantCSV);
 
 float standardDeviation(int intervenant, float mean, float* data);
 

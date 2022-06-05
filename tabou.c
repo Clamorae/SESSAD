@@ -14,10 +14,10 @@ void tabouSearch(int *solution, int iter, int intervenant, int missions, char **
     float finalScore[10];
     for (int i = 0; i < 9; i++)
     {
-        finalScore[i] = 9999.0;
+        finalScore[i] = 99999.0;
     }
     tabouHead->sol = solution; 
-    tabouHead->score = isSolutionViable(solution,missions,intervenant,distancesCSV,missionCSV,intervenantCSV);
+    tabouHead->score = isSolutionViable(solution,missions,intervenant,distancesCSV,missionCSV,intervenantCSV);// + computeFitnessEmployee(solution,intervenant,missions,distancesCSV,missionCSV,intervenantCSV);
     finalScore[9] = tabouHead->score;
     memcpy(finalSol[9],solution,sizeof(int)*missions);
     for (int i = 0; i < iter; i++)
@@ -29,15 +29,11 @@ void tabouSearch(int *solution, int iter, int intervenant, int missions, char **
             {
                 tabouHead->next = findBestNeighbor(range, tabouHead->sol, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
                 tabouBuffer = tabouHead->next;
+                printf("\n\n%d\n",tabouBuffer->sol[0]);
             }
             else if (i < tabouSize)
             {
                 
-                /*tabouBuffer = tabouHead->next;
-                for (int j = 0; j < i - 1; i++)
-                {
-                    tabouBuffer = tabouBuffer->next;
-                }*/
                 tabouBuffer->next = findBestNeighbor(range, tabouBuffer->sol, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
                 tabouBuffer = tabouBuffer->next;
             }
@@ -84,32 +80,39 @@ struct tabouItem* findBestNeighbor(int range, int *solution, int missions, int i
     int x;
     for (int i = 0; i < range; i++)
     {//ANCHOR si suivant correspond pas à comp delete direct
-        if (solcpy[missions - 1] >= intervenant)
-        {
-            x = 0;
-            while (solcpy[missions - 1 - x] == intervenant && missions - 1 - x != 0)
+            if (solcpy[missions - 1] >= intervenant)
             {
-                solcpy[missions - 1 - x] = 0;
-                x++;
-            }
-            if ((missions - 1 - x) == 0)
-            {
-                solcpy[0] = 0;
+                x = 0;
+                while (solcpy[missions - 1 - x] == intervenant && missions - 1 - x != 0)
+                {
+                    solcpy[missions - 1 - x] = 1;
+                    x++;
+                }
+                if ((missions - 1 - x) == 0)
+                {
+                    solcpy[0] = 1;
+                }
+                else
+                {
+                    solcpy[missions - 1 - x] += 1;
+                }
             }
             else
             {
-                solcpy[missions - 1 - x] += 1;
+                solcpy[missions - 1] += 1;
             }
-        }
-        else
-        {
-            solcpy[missions - 1] += 1;
-        }
+        
+            for (int j = 0; j < missions; j++){
+                printf("%d, ",solcpy[j]);
+            }
+            printf("\n");
+        
 
         malus = isSolutionViable(solcpy, missions, intervenant, distancesCSV, missionCSV, intervenantCSV);
-        newScore = computeFitnessEmployee(solution, intervenant, distancesCSV, missionCSV, intervenantCSV);
-        if (newScore + malus < bestScore)
+        newScore = computeFitnessEmployee(solcpy, intervenant, missions,distancesCSV, missionCSV, intervenantCSV);
+        if (newScore + malus < bestScore||(i==range-1 && bestScore==9999.0))
         {
+
             bestScore = newScore+malus;
             memcpy(bestNeighbour, solcpy, sizeof(int) * missions);
         }
@@ -119,7 +122,6 @@ struct tabouItem* findBestNeighbor(int range, int *solution, int missions, int i
     best->score = bestScore;
     best->sol = bestNeighbour;
     // TODO neg solcpy
-    free(solcpy);
     return best;
 }
 
@@ -136,15 +138,6 @@ float isSolutionViable(int *solution, int missions, int intervenant, char ***dis
         workTime[i] = 0;
     }
 
-    for (int i = 0; i < missions; i++)
-    {
-        if (solution[i]<1)
-        {
-            malus = malus + 5.0;
-        }
-        
-    }
-    printf("\n");
     return malus;
 } 
     /*for (int i = 0; i < intervenant; i++)

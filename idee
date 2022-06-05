@@ -18,7 +18,7 @@ tabou :
         prend le meilleur pas tabou
         stock meilleur solution
     print meilleur solution
-    
+//ANCHOR incremente a endroit random
 
 
 

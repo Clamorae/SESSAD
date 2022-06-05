@@ -109,7 +109,6 @@ int main(int argc, char *argv[]){
     //int* solution = buildFirstSolution(intervenant, missions);
     
     tabouSearch(array, iter, intervenant, missions, distancesCSV, missionCSV, intervenantCSV);
-    //free(solution);
     for (int i = 0; i < missions+1; ++i){
         for (int j =0; j < missions+1; j++){
             free(distancesCSV[i][j]);
