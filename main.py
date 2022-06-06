@@ -5,6 +5,7 @@ import random as rd
 
 intervenants = 4
 missions = 45
+sizePop = 20
 intervenantsCSV = pd.read_csv("./Instances/45-4/Intervenants.csv", header=None)
 missionsCSV = pd.read_csv("./Instances/45-4/Missions.csv", header=None)
 distancesCSV = pd.read_csv("./Instances/45-4/Distances.csv", header=None)
@@ -12,7 +13,7 @@ distancesCSV = pd.read_csv("./Instances/45-4/Distances.csv", header=None)
 
 #-----------------genetic----------------------------------------------------------------------------------
 def genetic(solutions,missions):
-    newGeneration = np.empty((20,missions))
+    newGeneration = np.empty((sizePop,missions))
 
     for i in range(5):
         a = 4*i
@@ -142,9 +143,12 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
     return score
 
 #-----------------MAIN-----------------------------------------------------------------------------------------
-solutions  = np.zeros((20,missions))
-solScore = np.zeros(20)
-for i in range (20):
+solutions  = np.zeros((sizePop,missions))
+solScore = np.zeros(sizePop)
+bestsol =  np.zeros((sizePop,missions))
+bestsolScore= np.full(sizePop, 99999.9)
+
+for i in range (sizePop):
 #    print("[", end = '')
     for j in range (missions):
         solutions[i,j] = rd.randrange(0,intervenants)
@@ -152,15 +156,34 @@ for i in range (20):
 #    print("],")
 
 solutions = genetic(solutions,missions)
-for i in range (20):
+for i in range (sizePop):
     solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
 
+#bubble sort
+for i in range(sizePop-1):
+    for j in range(sizePop -1 -i):
+        if solScore[j] > solScore[j+1]:
+            solScore[j], solScore[j+1] = solScore[j+1], solScore[j]
+            solutions[j], solutions[j+1] = solutions[j+1], solutions[j]
+
+for i in range(sizePop):
+    if solScore[i] < bestsolScore[0]:
+        bestsolScore[0] = solScore[i]
+        bestsol[0] = solutions[i]
+        
+        for j in range(sizePop-1):
+            if bestsolScore[j] < bestsolScore[j+1]:
+                bestsolScore[j], bestsolScore[j+1] = bestsolScore[j+1], bestsolScore[j]
+                bestsol[j], bestsol[j+1] = bestsol[j+1], bestsol[j]
+            else :
+                j=sizePop
+    else :
+        i=sizePop
 
 print(solScore)
+print(bestsolScore)
 
 
-#TODO finir score
 #TODO loop sur newgen
-#TODO bubble sort
 #TODO mutation
 #TODO final comput
