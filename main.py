@@ -71,8 +71,12 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
     firstDailyMission = np.zeros(intervenants)
     lastMission = np.zeros(intervenants)
     dailyWorkTime = np.zeros((intervenants,5))
+    nonWorktime = np.zeros(intervenants)
+    overtime = np.zeros(intervenants)
     totWork = np.zeros(intervenants)
     distanceIntervenant = np.zeros(intervenants)
+    distancetot = 0.0
+    quotaMean = 0.0
 
     
     for i in range (missions):
@@ -103,6 +107,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
             
         else:
             distance = float(distancesCSV.values[0][i+1])/1000
+            distanceIntervenant[int(solution[i])] += distance
             tempsTrajet = distance*60/50
             firstDailyMission[int(solution[i])]=i
             lastMission[int(solution[i])]=i
@@ -116,13 +121,25 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
                 score+=999.9
             totWork[i]+=dailyWorkTime[i][j]
 
+        if int(intervenantsCSV[3][i])*60 - totWork[i] > 0:
+            nonWorktime[i] = int(intervenantsCSV[3][i])*60 - totWork[i]
+        else:
+            overtime[i] = int(intervenantsCSV[3][i])*60 - totWork[i]
+
         if totWork[i] > int(intervenantsCSV.values[i][3])*60 + 600:
             score +=999.9
+        
+        quotaMean += float(intervenantsCSV.values[i][3])*60
+        distancetot += distanceIntervenant[i]
+    
+    quotaMean = quotaMean / intervenants
                   
-
+    SDnonWork = np.std(nonWorktime)
+    SDovertime = np.std(overtime)
+    SDdistance = np.std(distanceIntervenant)
+    score += ((100/quotaMean)*SDnonWork + (100/10*intervenants)*SDovertime + (100/distancetot)*SDdistance)/3
 
     return score
-    #9
 
 #-----------------MAIN-----------------------------------------------------------------------------------------
 solutions  = np.zeros((20,missions))
@@ -137,10 +154,12 @@ for i in range (20):
 solutions = genetic(solutions,missions)
 for i in range (20):
     solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
+
+
 print(solScore)
 
 
-#TODO finir contrainte + score
+#TODO finir score
 #TODO loop sur newgen
 #TODO bubble sort
 #TODO mutation
