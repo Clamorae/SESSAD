@@ -1,18 +1,28 @@
-from traceback import print_tb
 import pandas as pd
 import numpy as np
 import random as rd
+import time
 
 intervenants = 4
 missions = 45
 sizePop = 20
+timeout = time.time() + 60 * 1
+
 intervenantsCSV = pd.read_csv("./Instances/45-4/Intervenants.csv", header=None)
 missionsCSV = pd.read_csv("./Instances/45-4/Missions.csv", header=None)
 distancesCSV = pd.read_csv("./Instances/45-4/Distances.csv", header=None)
 
+#-----------------get_line----------------------------------------------------------------------------------
+def get_line(sizePop):
+    sizeSum = (sizePop+1)*(0+sizePop)//2
+    parent = rd.randrange(0,sizeSum)
+    for i in range(sizePop):
+        parent = parent - (sizePop -i)
+        if parent <= 0 :
+            return i
 
 #-----------------genetic----------------------------------------------------------------------------------
-def genetic(solutions,missions):
+def genetic(solutions,missions,sizePop):
     newGeneration = np.empty((sizePop,missions))
 
     for i in range(5):
@@ -20,6 +30,14 @@ def genetic(solutions,missions):
         b = (4*i) + 1
         c = (4*i) + 2
         d = (4*i) + 3
+        e = get_line(sizePop)
+        f = get_line(sizePop)
+        while e==f:
+            f = get_line(sizePop)
+        g = get_line(sizePop)
+        h = get_line(sizePop)
+        while g==h:
+            h = get_line(sizePop)
         #order crossover
         x = rd.randrange(1,missions-1)
         y = rd.randrange(1,missions-1)
@@ -29,26 +47,26 @@ def genetic(solutions,missions):
 
         if x > y:
             for i in range(0,y):
-                newGeneration[a,i] = solutions[a,i]
-                newGeneration[b,i] = solutions[b,i]
+                newGeneration[a,i] = solutions[e,i]
+                newGeneration[b,i] = solutions[f,i]
             for i in range(y,x):
-                newGeneration[b,i] = solutions[a,i]
-                newGeneration[a,i] = solutions[b,i]
+                newGeneration[b,i] = solutions[e,i]
+                newGeneration[a,i] = solutions[f,i]
             for i in range(x,missions):
-                newGeneration[a,i] = solutions[a,i]
-                newGeneration[b,i] = solutions[b,i]
+                newGeneration[a,i] = solutions[e,i]
+                newGeneration[b,i] = solutions[f,i]
 
         else:
             for i in range(0,x):
-                newGeneration[a,i] = solutions[a,i]
-                newGeneration[b,i] = solutions[b,i]
+                newGeneration[a,i] = solutions[e,i]
+                newGeneration[b,i] = solutions[f,i]
             for i in range(x,y):
-                newGeneration[b,i] = solutions[a,i]
-                newGeneration[a,i] = solutions[b,i]
+                newGeneration[b,i] = solutions[e,i]
+                newGeneration[a,i] = solutions[f,i]
             for i in range(y,missions):
-                newGeneration[a,i] = solutions[a,i]
-                newGeneration[b,i] = solutions[b,i]
-    
+                newGeneration[a,i] = solutions[e,i]
+                newGeneration[b,i] = solutions[f,i]
+        
 
         #Uniform crossover
         bMask = np.empty(missions)
@@ -56,11 +74,17 @@ def genetic(solutions,missions):
             i = rd.randrange(0,1)
         for i in range(missions):
             if bMask[i]==0:
-                newGeneration[c,i] = solutions[c,i]
-                newGeneration[d,i] = solutions[d,i]
+                newGeneration[c,i] = solutions[g,i]
+                newGeneration[d,i] = solutions[h,i]
             else:
-                newGeneration[d,i] = solutions[c,i]
-                newGeneration[c,i] = solutions[d,i]
+                newGeneration[d,i] = solutions[g,i]
+                newGeneration[c,i] = solutions[h,i]
+        
+        #mutations
+        newGeneration[a,rd.randrange(0,missions)] == rd.randrange(0,3)
+        newGeneration[b,rd.randrange(0,missions)] == rd.randrange(0,3) 
+        newGeneration[c,rd.randrange(0,missions)] == rd.randrange(0,3)
+        newGeneration[d,rd.randrange(0,missions)] == rd.randrange(0,3) 
     
     #ANCHOR maybe more breeding type
     return newGeneration
@@ -147,6 +171,7 @@ solutions  = np.zeros((sizePop,missions))
 solScore = np.zeros(sizePop)
 bestsol =  np.zeros((sizePop,missions))
 bestsolScore= np.full(sizePop, 99999.9)
+buffer = np.zeros(missions)
 
 for i in range (sizePop):
 #    print("[", end = '')
@@ -155,35 +180,45 @@ for i in range (sizePop):
 #        print(solutions[i,j],",", end = '')
 #    print("],")
 
-solutions = genetic(solutions,missions)
-for i in range (sizePop):
-    solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
+while True:
+    solutions = genetic(solutions,missions,sizePop)
+    for i in range (sizePop):
+        solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
 
-#bubble sort
-for i in range(sizePop-1):
-    for j in range(sizePop -1 -i):
-        if solScore[j] > solScore[j+1]:
-            solScore[j], solScore[j+1] = solScore[j+1], solScore[j]
-            solutions[j], solutions[j+1] = solutions[j+1], solutions[j]
+    #bubble sort
+    for i in range(sizePop):
+        swapped = False
+        for j in range(0, sizePop-i-1):
+            if solScore[j] > solScore[j+1] :
+                solScore[j], solScore[j+1] = solScore[j+1], solScore[j]
+                buffer = solutions[j+1].copy()
+                solutions[j+1] = solutions[j].copy()
+                solutions[j] = buffer.copy()
+                swapped = True
+        if swapped == False:
+            break
 
-for i in range(sizePop):
-    if solScore[i] < bestsolScore[0]:
-        bestsolScore[0] = solScore[i]
-        bestsol[0] = solutions[i]
-        
-        for j in range(sizePop-1):
-            if bestsolScore[j] < bestsolScore[j+1]:
-                bestsolScore[j], bestsolScore[j+1] = bestsolScore[j+1], bestsolScore[j]
-                bestsol[j], bestsol[j+1] = bestsol[j+1], bestsol[j]
-            else :
-                j=sizePop
-    else :
-        i=sizePop
 
-print(solScore)
+
+    for i in range(sizePop):
+        if solScore[i] < bestsolScore[0]:
+            bestsolScore[0] = solScore[i]
+            bestsol[0] = solutions[i]
+            
+            for j in range(sizePop-1):
+                if bestsolScore[j] < bestsolScore[j+1]:
+                    bestsolScore[j], bestsolScore[j+1] = bestsolScore[j+1], bestsolScore[j]
+                    bestsol[j], bestsol[j+1] = bestsol[j+1], bestsol[j]
+                else :
+                    j=sizePop
+        else :
+            i=sizePop
+    if time.time()>timeout:
+        break
+bestsol = 
+
 print(bestsolScore)
 
-
-#TODO loop sur newgen
-#TODO mutation
 #TODO final comput
+#TODO build better first sol 
+#TODO better breeding
