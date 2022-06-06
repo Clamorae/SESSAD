@@ -18,7 +18,6 @@ tabou :
         prend le meilleur pas tabou
         stock meilleur solution
     print meilleur solution
-<<<<<<< HEAD
     
 ON STOP LE C
 algo genetique 
@@ -29,10 +28,6 @@ eval solution
 genetique
 lire csv
 matric avec meilleur score
-=======
-//ANCHOR incremente a endroit random
-
->>>>>>> 52d8f2fcf1beaa09f153caa20dd6c3fd0b6f3b5c
 
 
 
