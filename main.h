@@ -10,8 +10,6 @@
 #include "tabou.h"
 #include "score.h"
 
-char* getPosition(int x, int y,char* name);
-
 /*
 This function will create the starting point of the taboul algorithm.
 */

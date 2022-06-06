@@ -1,10 +1,10 @@
-OBJS	= main.o tabou.o
-SOURCE	= main.c tabou.c
-HEADER	= main.h tabou.h
-FLAGS	 = -g -c -Wall -lm
+OBJS	= main.o tabou.o score.o
+SOURCE	= main.c tabou.c score.c
+HEADER	= main.h tabou.h score.h
+FLAGS	 = -g -c -Wall 
 
 all: $(OBJS)
-	$(CC) -g $(OBJS) -o test
+	gcc  $(OBJS) -o test -lm
 
 main.o: main.c
 	$(CC) $(FLAGS) main.c 
@@ -12,9 +12,12 @@ main.o: main.c
 tabou.o: tabou.c
 	$(CC) $(FLAGS) tabou.c 
 
+score.o: score.c
+	$(CC) $(FLAGS) score.c
 
-#clean:
-#	rm -f $(OBJS) $(OUT)
+clean:
+	rm -f $(OBJS) $(OUT)
+
 #clear: SESSAD.exe
 #	rm score.o
 #	rm tabou.o
