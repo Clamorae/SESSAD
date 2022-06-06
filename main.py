@@ -61,7 +61,7 @@ def genetic(solutions,missions):
                 newGeneration[d,i] = solutions[c,i]
                 newGeneration[c,i] = solutions[d,i]
     
-    #ANCHOR maybe more mutation type
+    #ANCHOR maybe more breeding type
     return newGeneration
         
    
@@ -72,6 +72,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
     lastMission = np.zeros(intervenants)
     dailyWorkTime = np.zeros((intervenants,5))
     totWork = np.zeros(intervenants)
+    distanceIntervenant = np.zeros(intervenants)
 
     
     for i in range (missions):
@@ -79,17 +80,35 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
         if intervenantsCSV.values[int(solution[i])][1] != missionsCSV.values[i][4]:
             score+= 999.9
         
-        # check if there is less than 12h between the first and the last mission
+        
         if firstDailyMission[int(solution[i])]!=0:
+            distance = float(distancesCSV.values[int(lastMission[int(solution[i])])+1][i+1])/1000
+            tempsTrajet = distance*60/50
+
             if missionsCSV.values[int(firstDailyMission[int(solution[i])])][1]!=missionsCSV.values[i][1]:
+                # check if there is less than 12h between the first and the last mission
                 if missionsCSV.values[int(lastMission[int(solution[i])])][1] - missionsCSV.values[int(firstDailyMission[int(solution[i])])][1] >720:
                     score+= 999.9
                 firstDailyMission[int(solution[i])]=i
+
+            #check for the lunch time    
+            elif int(missionsCSV.values[i][2])> 720 and int(missionsCSV.values[i][2]) < 840:
+                if int(missionsCSV.values[i][2]) - int(missionsCSV.values[int(lastMission[int(solution[i])])][3]<60):
+                    score += 999.9
+
+            elif int(missionsCSV.values[i][2]) - (int(missionsCSV.values[int(lastMission[int(solution[i])])][3] + tempsTrajet)<0):
+                    score += 999.9 
+            distanceIntervenant[int(solution[i])] += distance
+            lastMission[int(solution[i])]=i
+            
         else:
+            distance = float(distancesCSV.values[0][i+1])/1000
+            tempsTrajet = distance*60/50
             firstDailyMission[int(solution[i])]=i
             lastMission[int(solution[i])]=i
         
-        dailyWorkTime[int(solution[i])][int(missionsCSV.values[i][1])-1] += int(missionsCSV.values[i][3]) - int(missionsCSV.values[i][2])
+        dailyWorkTime[int(solution[i])][int(missionsCSV.values[i][1])-1] += tempsTrajet + float(missionsCSV.values[i][3]) - float(missionsCSV.values[i][2])
+        
 
     for i in range (intervenants):
         for j in range(5):
@@ -103,6 +122,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
 
 
     return score
+    #9
 
 #-----------------MAIN-----------------------------------------------------------------------------------------
 solutions  = np.zeros((20,missions))
@@ -122,5 +142,6 @@ print(solScore)
 
 #TODO finir contrainte + score
 #TODO loop sur newgen
+#TODO bubble sort
 #TODO mutation
 #TODO final comput
