@@ -7,7 +7,7 @@ import time
 intervenants = 4
 missions = 45
 sizePop = 40
-timeout = time.time() + 60 * 1
+timeout = time.time() + 10 * 1
 
 intervenantsCSV = pd.read_csv("./Instances/45-4/Intervenants.csv", header=None)
 missionsCSV = pd.read_csv("./Instances/45-4/Missions.csv", header=None)
@@ -198,6 +198,21 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
 
 
 
+#-----------------COMPUTE_SCORE----------------------------------------------------------------------------------
+def compute_second(missions, solutions, missionsCSV, intervernantsCSV):
+    result = np.zeros(10)
+    for i in range(len(solutions)):
+        penalities = 0
+        for j in range(missions):
+            if missionsCSV[5][j] != intervenantsCSV[2][int(solutions[i][j])]:
+                penalities += 1
+        result[i] = (100/missions)*penalities
+    return result
+
+
+
+
+
 
 #-----------------MAIN-----------------------------------------------------------------------------------------
 solutions  = np.zeros((sizePop,missions))
@@ -263,8 +278,8 @@ for i in range(sizePop):
 isAlready=False
 for i in range(sizePop):
     for j in range(sizePop):
-            if np.array_equal(bestsol[j],solutions[i]):
-                isAlready = True
+        if bestsolScore[j] == solScore[i]:
+            isAlready = True
     if isAlready == False:
         if solScore[i] < bestsolScore[0]:
             bestsolScore[0] = solScore[i]
@@ -304,8 +319,8 @@ while True:
     isAlready=False
     for i in range(sizePop):
         for j in range(sizePop):
-             if np.array_equal(bestsol[j],solutions[i]):
-                 isAlready = True
+            if bestsolScore[j] == solScore[i]:
+                isAlready = True
         if isAlready == False:
             if solScore[i] < bestsolScore[0]:
                 bestsolScore[0] = solScore[i]
@@ -324,13 +339,28 @@ while True:
     if time.time()>timeout :
         break
 
-print(bestsolScore)
 
-arr =[1,3,1,3,1,0,2,0,2,3,1,3,1,0,2,0,2,0,1,3,1,3,0,2,0,2,1,3,1,3,0,2,0,2,0,1,3,1,3,1,2,0,2,0,2]
-arrzer =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-testscore = compute_score(arr, missions, intervenants, intervenantsCSV,missionsCSV,distancesCSV)
-testzer = compute_score(arrzer, missions, intervenants, intervenantsCSV,missionsCSV,distancesCSV)
+secondSol = np.zeros((10,missions))
+for i in range(10):
+    secondSol[i] = solutions[sizePop - 1 -i]
 
+print(secondSol)
+secondScore = compute_second(missions, secondSol,missionsCSV, intervenantsCSV)
+print(secondScore)
+
+for i in range(10):
+    swapped = False
+    for j in range(0, 10-i-1):
+        if secondScore[j] > secondScore[j+1] :
+            secondScore[j], secondScore[j+1] = secondScore[j+1], secondScore[j]
+            buffer = secondSol[j+1].copy()
+            secondSol[j+1] = secondSol[j].copy()
+            secondSol[j] = buffer.copy()
+            swapped = True
+    if swapped == False:
+        break
+print(secondSol)
+print(secondScore)
 
 #TODO final comput
 #TODO better breeding
