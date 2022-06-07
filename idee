@@ -29,7 +29,18 @@ genetique
 lire csv
 matric avec meilleur score
 
-
+for k intervenant
+    j=k
+    for i  mission
+        if mission.comp = j.comp
+            mission = j
+        else
+            while mission.comp != j.comp
+            if j < intervenant
+                j+=1
+            else
+                j = 0
+        j+=1
 
 
 

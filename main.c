@@ -103,7 +103,7 @@ int main(int argc, char *argv[]){
 
     srand(time(0));
 
-    int array[45] = {1,3,1,3,1,2,4,2,4,3,1,3,1,2,4,2,4,2,1,3,1,3,2,4,2,4,1,3,1,3,2,4,2,4,2,1,3,1,3,1,4,2,4,2,4};
+    int array[45] = {0,2,0,2,0,1,3,1,3,2,0,2,0,1,3,1,3,1,0,2,0,2,1,3,1,3,0,2,0,2,1,3,1,3,1,0,2,0,2,0,3,1,3,1,3};
 
     //lauching tabou
     //int* solution = buildFirstSolution(intervenant, missions);

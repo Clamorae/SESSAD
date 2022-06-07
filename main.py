@@ -1,3 +1,4 @@
+from faulthandler import disable
 import pandas as pd
 import numpy as np
 import random as rd
@@ -5,7 +6,7 @@ import time
 
 intervenants = 4
 missions = 45
-sizePop = 20
+sizePop = 50
 timeout = time.time() + 60 * 1
 
 intervenantsCSV = pd.read_csv("./Instances/45-4/Intervenants.csv", header=None)
@@ -117,16 +118,16 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
             if missionsCSV.values[int(firstDailyMission[int(solution[i])])][1]!=missionsCSV.values[i][1]:
                 # check if there is less than 12h between the first and the last mission
                 if missionsCSV.values[int(lastMission[int(solution[i])])][1] - missionsCSV.values[int(firstDailyMission[int(solution[i])])][1] >720:
-                    score+= 999.9
+                    score+= 99.9
                 firstDailyMission[int(solution[i])]=i
 
             #check for the lunch time    
             elif int(missionsCSV.values[i][2])> 720 and int(missionsCSV.values[i][2]) < 840:
                 if int(missionsCSV.values[i][2]) - int(missionsCSV.values[int(lastMission[int(solution[i])])][3]<60):
-                    score += 999.9
+                    score += 99.9
 
             elif int(missionsCSV.values[i][2]) - (int(missionsCSV.values[int(lastMission[int(solution[i])])][3] + tempsTrajet)<0):
-                    score += 999.9 
+                    score += 99.9 
             distanceIntervenant[int(solution[i])] += distance
             lastMission[int(solution[i])]=i
             
@@ -143,7 +144,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
     for i in range (intervenants):
         for j in range(5):
             if (dailyWorkTime[i][j] > 360 and int(intervenantsCSV.values[i][3])==24) or (dailyWorkTime[i][j] > 480 and int(intervenantsCSV.values[i][3])==35):
-                score+=999.9
+                score+=99.9
             totWork[i]+=dailyWorkTime[i][j]
 
         if int(intervenantsCSV[3][i])*60 - totWork[i] > 0:
@@ -152,7 +153,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
             overtime[i] = int(intervenantsCSV[3][i])*60 - totWork[i]
 
         if totWork[i] > int(intervenantsCSV.values[i][3])*60 + 600:
-            score +=999.9
+            score +=99.9
         
         quotaMean += float(intervenantsCSV.values[i][3])*60
         distancetot += distanceIntervenant[i]
@@ -174,11 +175,33 @@ bestsolScore= np.full(sizePop, 99999.9)
 buffer = np.zeros(missions)
 
 for i in range (sizePop):
-#    print("[", end = '')
-    for j in range (missions):
-        solutions[i,j] = rd.randrange(0,intervenants)
-#        print(solutions[i,j],",", end = '')
-#    print("],")
+    if i < intervenants:    
+        inter = i
+        for j in range(missions):
+            if missionsCSV.values[j][4] == intervenantsCSV.values[inter][1]:
+                solutions[i,j] = inter
+            else:
+                while missionsCSV.values[j][4] != intervenantsCSV.values[inter][1]:
+                    if inter < intervenants-1:
+                        inter += 1
+                    else:
+                        inter = 0
+                solutions[i,j] = inter
+    elif i < 2*intervenants:
+        inter = i - intervenants
+        for j in range(missions):
+            if missionsCSV.values[j][4] == intervenantsCSV.values[inter][1]:
+                solutions[i,j] = inter
+            else:
+                while missionsCSV.values[j][4] != intervenantsCSV.values[inter][1]:
+                    if inter > 0:
+                        inter -= 1
+                    else:
+                        inter = intervenants -1
+    else:
+        for j in range (missions):
+            solutions[i,j] = rd.randrange(0,intervenants)
+
 
 while True:
     solutions = genetic(solutions,missions,sizePop)
@@ -215,9 +238,13 @@ while True:
             i=sizePop
     if time.time()>timeout:
         break
-bestsol = 
 
 print(bestsolScore)
+
+# arr =[1,3,1,3,1,0,2,0,2,3,1,3,1,0,2,0,2,0,1,3,1,3,0,2,0,2,1,3,1,3,0,2,0,2,0,1,3,1,3,1,2,0,2,0,2]
+# testscore = compute_score(arr, missions, intervenants, intervenantsCSV,missionsCSV,distancesCSV)
+# print(testscore)
+
 
 #TODO final comput
 #TODO build better first sol 
