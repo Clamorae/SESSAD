@@ -6,7 +6,7 @@ import time
 
 intervenants = 4
 missions = 45
-sizePop = 50
+sizePop = 40
 timeout = time.time() + 60 * 1
 
 intervenantsCSV = pd.read_csv("./Instances/45-4/Intervenants.csv", header=None)
@@ -26,7 +26,7 @@ def get_line(sizePop):
 def genetic(solutions,missions,sizePop):
     newGeneration = np.empty((sizePop,missions))
 
-    for i in range(5):
+    for i in range(10):#adapt this
         a = 4*i
         b = (4*i) + 1
         c = (4*i) + 2
@@ -85,7 +85,7 @@ def genetic(solutions,missions,sizePop):
         newGeneration[a,rd.randrange(0,missions)] == rd.randrange(0,3)
         newGeneration[b,rd.randrange(0,missions)] == rd.randrange(0,3) 
         newGeneration[c,rd.randrange(0,missions)] == rd.randrange(0,3)
-        newGeneration[d,rd.randrange(0,missions)] == rd.randrange(0,3) 
+        newGeneration[d,rd.randrange(0,missions)] == rd.randrange(0,3)
     
     #ANCHOR maybe more breeding type
     return newGeneration
@@ -122,12 +122,15 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
                 firstDailyMission[int(solution[i])]=i
 
             #check for the lunch time    
+            
             elif int(missionsCSV.values[i][2])> 720 and int(missionsCSV.values[i][2]) < 840:
                 if int(missionsCSV.values[i][2]) - int(missionsCSV.values[int(lastMission[int(solution[i])])][3]<60):
-                    score += 99.9
-
-            elif int(missionsCSV.values[i][2]) - (int(missionsCSV.values[int(lastMission[int(solution[i])])][3] + tempsTrajet)<0):
-                    score += 99.9 
+                    if  int(missionsCSV.values[int(lastMission[int(solution[i])])][3]) > 720 and int(missionsCSV.values[int(lastMission[int(solution[i])])][3])<840:
+                        print("lunch")
+                        score += 99.9
+            
+            elif (int(missionsCSV.values[i][1]) == int(missionsCSV.values[int(lastMission[int(solution[i])])][1] ) ) and ((int(missionsCSV.values[i][2]) - (int(missionsCSV.values[int(lastMission[int(solution[i])])][3])))<0):
+                    score += 999.9 
             distanceIntervenant[int(solution[i])] += distance
             lastMission[int(solution[i])]=i
             
@@ -198,17 +201,58 @@ for i in range (sizePop):
                         inter -= 1
                     else:
                         inter = intervenants -1
+                solutions[i,j] = inter
     else:
         for j in range (missions):
             solutions[i,j] = rd.randrange(0,intervenants)
+for i in range (sizePop):
+        solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
+
+for i in range(sizePop):
+    swapped = False
+    for j in range(0, sizePop-i-1):
+        if solScore[j] > solScore[j+1] :
+            solScore[j], solScore[j+1] = solScore[j+1], solScore[j]
+            buffer = solutions[j+1].copy()
+            solutions[j+1] = solutions[j].copy()
+            solutions[j] = buffer.copy()
+            swapped = True
+    if swapped == False:
+        break
+
+
+isAlready=False
+for i in range(sizePop):
+    for j in range(sizePop):
+        if np.array_equal(bestsol[j],solutions[i]):
+            isAlready = True
+    if isAlready == False:
+        
+        if solScore[i] < bestsolScore[0]:
+            
+            bestsolScore[0] = solScore[i]
+            bestsol[0] = solutions[i]
+            for j in range(sizePop-1):
+                if bestsolScore[j] < bestsolScore[j+1]:
+                    bestsolScore[j], bestsolScore[j+1] = bestsolScore[j+1], bestsolScore[j]
+                    buffer = bestsol[j+1].copy()
+                    bestsol[j+1] = bestsol[j].copy()
+                    bestsol[j] = buffer.copy()
+                else :
+                    j=sizePop
+        else :
+            i=sizePop
 
 
 while True:
+    
     solutions = genetic(solutions,missions,sizePop)
+    
     for i in range (sizePop):
         solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
-
+    
     #bubble sort
+    
     for i in range(sizePop):
         swapped = False
         for j in range(0, sizePop-i-1):
@@ -221,31 +265,37 @@ while True:
         if swapped == False:
             break
 
-
-
+    isAlready=False
     for i in range(sizePop):
-        if solScore[i] < bestsolScore[0]:
-            bestsolScore[0] = solScore[i]
-            bestsol[0] = solutions[i]
-            
-            for j in range(sizePop-1):
-                if bestsolScore[j] < bestsolScore[j+1]:
-                    bestsolScore[j], bestsolScore[j+1] = bestsolScore[j+1], bestsolScore[j]
-                    bestsol[j], bestsol[j+1] = bestsol[j+1], bestsol[j]
-                else :
-                    j=sizePop
-        else :
-            i=sizePop
-    if time.time()>timeout:
+        for j in range(sizePop):
+            if np.array_equal(bestsol[j],solutions[i]):
+                isAlready = True
+        if isAlready == False:
+            if solScore[i] < bestsolScore[0]:
+                bestsolScore[0] = solScore[i]
+                bestsol[0] = solutions[i]
+                for j in range(sizePop-1):
+                    if bestsolScore[j] < bestsolScore[j+1]:
+                        bestsolScore[j], bestsolScore[j+1] = bestsolScore[j+1], bestsolScore[j]
+                        buffer = bestsol[j+1].copy()
+                        bestsol[j+1] = bestsol[j].copy()
+                        bestsol[j] = buffer.copy()
+                    else :
+                        j=sizePop
+            else :
+                i=sizePop
+    
+    if time.time()>timeout :
         break
 
 print(bestsolScore)
 
-# arr =[1,3,1,3,1,0,2,0,2,3,1,3,1,0,2,0,2,0,1,3,1,3,0,2,0,2,1,3,1,3,0,2,0,2,0,1,3,1,3,1,2,0,2,0,2]
-# testscore = compute_score(arr, missions, intervenants, intervenantsCSV,missionsCSV,distancesCSV)
-# print(testscore)
+arr =[1,3,1,3,1,0,2,0,2,3,1,3,1,0,2,0,2,0,1,3,1,3,0,2,0,2,1,3,1,3,0,2,0,2,0,1,3,1,3,1,2,0,2,0,2]
+arrzer =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+testscore = compute_score(arr, missions, intervenants, intervenantsCSV,missionsCSV,distancesCSV)
+testzer = compute_score(arrzer, missions, intervenants, intervenantsCSV,missionsCSV,distancesCSV)
+print(testscore)
 
 
 #TODO final comput
-#TODO build better first sol 
 #TODO better breeding
