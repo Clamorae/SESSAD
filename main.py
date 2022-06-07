@@ -190,6 +190,10 @@ for i in range (sizePop):
                     else:
                         inter = 0
                 solutions[i,j] = inter
+            if inter < intervenants-1:
+                inter += 1
+            else:
+                inter = 0 
     elif i < 2*intervenants:
         inter = i - intervenants
         for j in range(missions):
@@ -202,6 +206,10 @@ for i in range (sizePop):
                     else:
                         inter = intervenants -1
                 solutions[i,j] = inter
+            if inter > 0:
+                inter -= 1
+            else:
+                inter = intervenants -1
     else:
         for j in range (missions):
             solutions[i,j] = rd.randrange(0,intervenants)
