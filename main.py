@@ -13,7 +13,10 @@ intervenantsCSV = pd.read_csv("./Instances/45-4/Intervenants.csv", header=None)
 missionsCSV = pd.read_csv("./Instances/45-4/Missions.csv", header=None)
 distancesCSV = pd.read_csv("./Instances/45-4/Distances.csv", header=None)
 
-#-----------------get_line----------------------------------------------------------------------------------
+
+
+
+#-----------------GET_LINE----------------------------------------------------------------------------------
 def get_line(sizePop):
     sizeSum = (sizePop+1)*(0+sizePop)//2
     parent = rd.randrange(0,sizeSum)
@@ -22,7 +25,13 @@ def get_line(sizePop):
         if parent <= 0 :
             return i
 
-#-----------------genetic----------------------------------------------------------------------------------
+
+
+
+
+
+
+#-----------------GENETIC----------------------------------------------------------------------------------
 def genetic(solutions,missions,sizePop):
     newGeneration = np.empty((sizePop,missions))
 
@@ -90,8 +99,21 @@ def genetic(solutions,missions,sizePop):
     #ANCHOR maybe more breeding type
     return newGeneration
         
-   
-#-----------------compute_score----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#-----------------COMPUTE_SCORE----------------------------------------------------------------------------------
 def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV, distancesCSV):
     score = 0.0
     firstDailyMission = np.zeros(intervenants)
@@ -170,6 +192,13 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
 
     return score
 
+
+
+
+
+
+
+
 #-----------------MAIN-----------------------------------------------------------------------------------------
 solutions  = np.zeros((sizePop,missions))
 solScore = np.zeros(sizePop)
@@ -213,8 +242,10 @@ for i in range (sizePop):
     else:
         for j in range (missions):
             solutions[i,j] = rd.randrange(0,intervenants)
+
+
 for i in range (sizePop):
-        solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
+    solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
 
 for i in range(sizePop):
     swapped = False
@@ -232,12 +263,10 @@ for i in range(sizePop):
 isAlready=False
 for i in range(sizePop):
     for j in range(sizePop):
-        if np.array_equal(bestsol[j],solutions[i]):
-            isAlready = True
+            if np.array_equal(bestsol[j],solutions[i]):
+                isAlready = True
     if isAlready == False:
-        
         if solScore[i] < bestsolScore[0]:
-            
             bestsolScore[0] = solScore[i]
             bestsol[0] = solutions[i]
             for j in range(sizePop-1):
@@ -250,7 +279,6 @@ for i in range(sizePop):
                     j=sizePop
         else :
             i=sizePop
-
 
 while True:
     
@@ -276,8 +304,8 @@ while True:
     isAlready=False
     for i in range(sizePop):
         for j in range(sizePop):
-            if np.array_equal(bestsol[j],solutions[i]):
-                isAlready = True
+             if np.array_equal(bestsol[j],solutions[i]):
+                 isAlready = True
         if isAlready == False:
             if solScore[i] < bestsolScore[0]:
                 bestsolScore[0] = solScore[i]
@@ -302,7 +330,6 @@ arr =[1,3,1,3,1,0,2,0,2,3,1,3,1,0,2,0,2,0,1,3,1,3,0,2,0,2,1,3,1,3,0,2,0,2,0,1,3,
 arrzer =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 testscore = compute_score(arr, missions, intervenants, intervenantsCSV,missionsCSV,distancesCSV)
 testzer = compute_score(arrzer, missions, intervenants, intervenantsCSV,missionsCSV,distancesCSV)
-print(testscore)
 
 
 #TODO final comput
