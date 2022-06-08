@@ -7,7 +7,7 @@ import time
 intervenants = 4
 missions = 45
 sizePop = 40
-timeout = time.time() + 10 * 1
+timeout = time.time() + 60 * 1
 
 intervenantsCSV = pd.read_csv("./Instances/45-4/Intervenants.csv", header=None)
 missionsCSV = pd.read_csv("./Instances/45-4/Missions.csv", header=None)
@@ -148,7 +148,6 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
             elif int(missionsCSV.values[i][2])> 720 and int(missionsCSV.values[i][2]) < 840:
                 if int(missionsCSV.values[i][2]) - int(missionsCSV.values[int(lastMission[int(solution[i])])][3]<60):
                     if  int(missionsCSV.values[int(lastMission[int(solution[i])])][3]) > 720 and int(missionsCSV.values[int(lastMission[int(solution[i])])][3])<840:
-                        print("lunch")
                         score += 99.9
             
             elif (int(missionsCSV.values[i][1]) == int(missionsCSV.values[int(lastMission[int(solution[i])])][1] ) ) and ((int(missionsCSV.values[i][2]) - (int(missionsCSV.values[int(lastMission[int(solution[i])])][3])))<0):
@@ -198,7 +197,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
 
 
 
-#-----------------COMPUTE_SCORE----------------------------------------------------------------------------------
+#-----------------COMPUTE_SECOND----------------------------------------------------------------------------------
 def compute_second(missions, solutions, missionsCSV, intervernantsCSV):
     result = np.zeros(10)
     for i in range(len(solutions)):
@@ -207,6 +206,39 @@ def compute_second(missions, solutions, missionsCSV, intervernantsCSV):
             if missionsCSV[5][j] != intervenantsCSV[2][int(solutions[i][j])]:
                 penalities += 1
         result[i] = (100/missions)*penalities
+    return result
+
+
+
+
+
+#-----------------COMPUTE_THIRD----------------------------------------------------------------------------------
+def compute_third(solution, missions, intervenants, intervenantsCSV, missionsCSV, distancesCSV):
+    lastMission = np.zeros(intervenants)
+    dailyWorkTime = np.zeros((intervenants,5))
+    totWork = np.zeros(intervenants)
+    k = 0.0
+    distancetot = 0.0
+    distanceMax = 0.0
+
+    for i in range (missions):        
+        distance = float(distancesCSV.values[int(lastMission[int(solution[i])])+1][i+1])/1000
+        k+=float(distancesCSV.values[0][i+1])/1000
+        k+=float(distancesCSV.values[i+1][0])/1000
+        distancetot += distance
+        if distance > distanceMax :
+            distanceMax = distance
+        lastMission[int(solution[i])]=i
+        tempsTrajet = distance*60/50
+        dailyWorkTime[int(solution[i])][int(missionsCSV.values[i][1])-1] += tempsTrajet + float(missionsCSV.values[i][3]) - float(missionsCSV.values[i][2])
+
+    sumWOH = 0.0
+    for i in range (intervenants):
+        for j in range(5):
+            totWork[i]+=dailyWorkTime[i][j]
+        sumWOH = abs(int(intervenantsCSV[3][i])*60 - totWork[i])
+
+    result = ((100/45)*sumWOH + (100/(k/intervenants))*(distancetot/intervenants) + (100/(k/intervenants))*distanceMax) /3
     return result
 
 
@@ -342,11 +374,10 @@ while True:
 
 secondSol = np.zeros((10,missions))
 for i in range(10):
-    secondSol[i] = solutions[sizePop - 1 -i]
+    secondSol[i] = solutions[sizePop - 1 -i].copy()
 
-print(secondSol)
+
 secondScore = compute_second(missions, secondSol,missionsCSV, intervenantsCSV)
-print(secondScore)
 
 for i in range(10):
     swapped = False
@@ -359,8 +390,19 @@ for i in range(10):
             swapped = True
     if swapped == False:
         break
-print(secondSol)
-print(secondScore)
+
+thirdSol = np.zeros((5,missions))
+bestthird = 9999.9
+for i in range(5):
+    thirdSol[i] = secondSol[i].copy()
+    newthird = compute_third(thirdSol[i],missions,intervenants,intervenantsCSV,missionsCSV,distancesCSV)
+    if newthird < bestthird :
+        bestthird = newthird
+        choosenSol = i
+
+print("La meilleure solution est:")
+print(thirdSol[choosenSol])
 
 #TODO final comput
 #TODO better breeding
+#TODO better K in compute_score() 
