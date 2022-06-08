@@ -1,4 +1,3 @@
-from faulthandler import disable
 import pandas as pd
 import numpy as np
 import random as rd
@@ -17,6 +16,11 @@ distancesCSV = pd.read_csv("./Instances/45-4/Distances.csv", header=None)
 
 
 #-----------------GET_LINE----------------------------------------------------------------------------------
+#This function will decide which solution is used for the next generation
+#It will take the population's size as parameter return a number (the choosen line)
+#the higher the ranking of the solution, the more likely it is to be selected
+#-----------------GET_LINE----------------------------------------------------------------------------------
+
 def get_line(sizePop):
     sizeSum = (sizePop+1)*(0+sizePop)//2
     parent = rd.randrange(0,sizeSum)
@@ -25,13 +29,11 @@ def get_line(sizePop):
         if parent <= 0 :
             return i
 
-
-
-
-
-
-
 #-----------------GENETIC----------------------------------------------------------------------------------
+# Here is created the new generation using two different breeding method
+# There is one mutation per child as the aim is to explore as much solutions as possible in a certain time
+#-----------------GENETIC----------------------------------------------------------------------------------
+
 def genetic(solutions,missions,sizePop):
     newGeneration = np.empty((sizePop,missions))
 
@@ -48,6 +50,8 @@ def genetic(solutions,missions,sizePop):
         h = get_line(sizePop)
         while g==h:
             h = get_line(sizePop)
+        
+        
         #order crossover
         x = rd.randrange(1,missions-1)
         y = rd.randrange(1,missions-1)
@@ -96,23 +100,12 @@ def genetic(solutions,missions,sizePop):
         newGeneration[c,rd.randrange(0,missions)] == rd.randrange(0,3)
         newGeneration[d,rd.randrange(0,missions)] == rd.randrange(0,3)
     
-    #ANCHOR maybe more breeding type
     return newGeneration
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#-----------------COMPUTE_SCORE----------------------------------------------------------------------------------
+# The first of the three computation function and the bigger, in this one each solution validity is checked for each
+# non-respected constraint a malus is given. Then the malus is added to the evaluation of the function, using this
+# solution which does not respect the constraint will have a very bad score.
 #-----------------COMPUTE_SCORE----------------------------------------------------------------------------------
 def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV, distancesCSV):
     score = 0.0
@@ -129,33 +122,38 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
 
     
     for i in range (missions):
-        # check for the competences affectation 
+
+        # check for the competences' affectation 
         if intervenantsCSV.values[int(solution[i])][1] != missionsCSV.values[i][4]:
             score+= 999.9
         
         
         if firstDailyMission[int(solution[i])]!=0:
+            #adding the travel and the travelTime since the last mission
             distance = float(distancesCSV.values[int(lastMission[int(solution[i])])+1][i+1])/1000
             tempsTrajet = distance*60/50
 
             if missionsCSV.values[int(firstDailyMission[int(solution[i])])][1]!=missionsCSV.values[i][1]:
+                
                 # check if there is less than 12h between the first and the last mission
                 if missionsCSV.values[int(lastMission[int(solution[i])])][1] - missionsCSV.values[int(firstDailyMission[int(solution[i])])][1] >720:
                     score+= 99.9
                 firstDailyMission[int(solution[i])]=i
 
             #check for the lunch time    
-            
             elif int(missionsCSV.values[i][2])> 720 and int(missionsCSV.values[i][2]) < 840:
                 if int(missionsCSV.values[i][2]) - int(missionsCSV.values[int(lastMission[int(solution[i])])][3]<60):
                     if  int(missionsCSV.values[int(lastMission[int(solution[i])])][3]) > 720 and int(missionsCSV.values[int(lastMission[int(solution[i])])][3])<840:
                         score += 99.9
             
+            #check for the mission superposition
             elif (int(missionsCSV.values[i][1]) == int(missionsCSV.values[int(lastMission[int(solution[i])])][1] ) ) and ((int(missionsCSV.values[i][2]) - (int(missionsCSV.values[int(lastMission[int(solution[i])])][3])))<0):
                     score += 999.9 
+
             distanceIntervenant[int(solution[i])] += distance
             lastMission[int(solution[i])]=i
             
+        #creating the first mission of the day
         else:
             distance = float(distancesCSV.values[0][i+1])/1000
             distanceIntervenant[int(solution[i])] += distance
@@ -169,6 +167,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
         
 
     for i in range (intervenants):
+        #checking the daily overtime
         for j in range(5):
             if (dailyWorkTime[i][j] > 360 and int(intervenantsCSV.values[i][3])==24) or (dailyWorkTime[i][j] > 480 and int(intervenantsCSV.values[i][3])==35):
                 score+=99.9
@@ -179,12 +178,14 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
         else:
             overtime[i] = int(intervenantsCSV[3][i])*60 - totWork[i]
 
+        #checking the weekly overtime
         if totWork[i] > int(intervenantsCSV.values[i][3])*60 + 600:
             score +=99.9
         
         quotaMean += float(intervenantsCSV.values[i][3])*60
         distancetot += distanceIntervenant[i]
     
+    #calculating the fitness
     quotaMean = quotaMean / intervenants
                   
     SDnonWork = np.std(nonWorktime)
@@ -196,11 +197,10 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
 
 
 
-
-
-
-
 #-----------------COMPUTE_SECOND----------------------------------------------------------------------------------
+# The second fitness computation is shorter than the first, it will only check if the specialities are corresponding
+#-----------------COMPUTE_SECOND----------------------------------------------------------------------------------
+
 def compute_second(missions, solutions, missionsCSV, intervernantsCSV):
     result = np.zeros(10)
     for i in range(len(solutions)):
@@ -211,11 +211,10 @@ def compute_second(missions, solutions, missionsCSV, intervernantsCSV):
         result[i] = (100/missions)*penalities
     return result
 
-
-
-
-
 #-----------------COMPUTE_THIRD----------------------------------------------------------------------------------
+# The third evaluation is measuring the working's time equality for everyone# 
+#-----------------COMPUTE_THIRD----------------------------------------------------------------------------------
+
 def compute_third(solution, missions, intervenants, intervenantsCSV, missionsCSV, distancesCSV):
     lastMission = np.zeros(intervenants)
     dailyWorkTime = np.zeros((intervenants,5))
@@ -246,16 +245,20 @@ def compute_third(solution, missions, intervenants, intervenantsCSV, missionsCSV
 
 
 
-
-
-
 #-----------------MAIN-----------------------------------------------------------------------------------------
+# The main is the core of the program, here are created the first solution, called the genetic function,
+# generating the solution shape and sorting them
+#-----------------MAIN-----------------------------------------------------------------------------------------
+
+#Initialisation of the useful array 
 solutions  = np.zeros((sizePop,missions))
 solScore = np.zeros(sizePop)
 bestsol =  np.zeros((sizePop,missions))
 bestsolScore= np.full(sizePop, 99999.9)
 buffer = np.zeros(missions)
 
+
+#creation of height good solution and sizePop-n random solution for more diversity
 for i in range (sizePop):
     if i < intervenants:    
         inter = i
@@ -294,9 +297,11 @@ for i in range (sizePop):
             solutions[i,j] = rd.randrange(0,intervenants)
 
 
+#get the score of the initial population
 for i in range (sizePop):
     solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
 
+#sorting the initial population (bubble sort)
 for i in range(sizePop):
     swapped = False
     for j in range(0, sizePop-i-1):
@@ -310,7 +315,7 @@ for i in range(sizePop):
         break
 
 
-
+#adding new solutions in the array of the best solution
 for i in range(sizePop):
     isAlready=False
     for j in range(sizePop):
@@ -331,15 +336,16 @@ for i in range(sizePop):
         else :
             i=sizePop
 
+
 while True:
-    
+    #creation of the nex generation using genetic()
     solutions = genetic(solutions,missions,sizePop)
     
+    #evaluation of the new generation
     for i in range (sizePop):
         solScore[i] = compute_score(solutions[i],missions,intervenants, intervenantsCSV, missionsCSV, distancesCSV)
     
-    #bubble sort
-    
+    #sorting the initial popilation (bubble sort)
     for i in range(sizePop):
         swapped = False
         for j in range(0, sizePop-i-1):
@@ -352,6 +358,7 @@ while True:
         if swapped == False:
             break
 
+    #adding new solutions in the array of the best solution
     for i in range(sizePop):
         isAlready=False
         for j in range(sizePop):
@@ -372,19 +379,19 @@ while True:
             else :
                 i=sizePop
     
+    #stop the generation of new population when a certain amout of time has passed
     if time.time()>timeout :
         break
 
-print(bestsolScore)
-
-
+#creation of another array with the ten best solution 
 secondSol = np.zeros((10,missions))
 for i in range(10):
     secondSol[i] = solutions[sizePop - 1 -i].copy()
 
-
+#computing the solution's score by the second criteria
 secondScore = compute_second(missions, secondSol,missionsCSV, intervenantsCSV)
 
+#sorting the second array (bubble sort)
 for i in range(10):
     swapped = False
     for j in range(0, 10-i-1):
@@ -397,6 +404,8 @@ for i in range(10):
     if swapped == False:
         break
 
+#generation of a new array with the five best solution
+#then evaluation of these solution and the best one is choosen
 thirdSol = np.zeros((5,missions))
 bestthird = 9999.9
 for i in range(5):
@@ -408,5 +417,3 @@ for i in range(5):
 
 print("La meilleure solution est:")
 print(thirdSol[choosenSol])
-
-#TODO better K in compute_score() 
