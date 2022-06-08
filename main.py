@@ -382,11 +382,13 @@ while True:
     #stop the generation of new population when a certain amout of time has passed
     if time.time()>timeout :
         break
+print("Meilleurs Scores pour le premier critère :")
+print(bestsolScore,"\n")
 
 #creation of another array with the ten best solution 
 secondSol = np.zeros((10,missions))
 for i in range(10):
-    secondSol[i] = solutions[sizePop - 1 -i].copy()
+    secondSol[i] = bestsol[sizePop - 1 -i].copy()
 
 #computing the solution's score by the second criteria
 secondScore = compute_second(missions, secondSol,missionsCSV, intervenantsCSV)
