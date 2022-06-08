@@ -35,7 +35,7 @@ def get_line(sizePop):
 def genetic(solutions,missions,sizePop):
     newGeneration = np.empty((sizePop,missions))
 
-    for i in range(10):#adapt this
+    for i in range(sizePop//4):
         a = 4*i
         b = (4*i) + 1
         c = (4*i) + 2
@@ -125,6 +125,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
     distanceIntervenant = np.zeros(intervenants)
     distancetot = 0.0
     quotaMean = 0.0
+    k = 0.0
 
     
     for i in range (missions):
@@ -162,6 +163,8 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
             firstDailyMission[int(solution[i])]=i
             lastMission[int(solution[i])]=i
         
+        k+=float(distancesCSV.values[0][i+1])/1000
+        k+=float(distancesCSV.values[i+1][0])/1000
         dailyWorkTime[int(solution[i])][int(missionsCSV.values[i][1])-1] += tempsTrajet + float(missionsCSV.values[i][3]) - float(missionsCSV.values[i][2])
         
 
@@ -187,7 +190,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
     SDnonWork = np.std(nonWorktime)
     SDovertime = np.std(overtime)
     SDdistance = np.std(distanceIntervenant)
-    score += ((100/quotaMean)*SDnonWork + (100/10*intervenants)*SDovertime + (100/distancetot)*SDdistance)/3
+    score += ((100/quotaMean)*SDnonWork + (100/10*intervenants)*SDovertime + (100/(k/intervenants))*SDdistance)/3
 
     return score
 
@@ -307,8 +310,9 @@ for i in range(sizePop):
         break
 
 
-isAlready=False
+
 for i in range(sizePop):
+    isAlready=False
     for j in range(sizePop):
         if bestsolScore[j] == solScore[i]:
             isAlready = True
@@ -348,8 +352,8 @@ while True:
         if swapped == False:
             break
 
-    isAlready=False
     for i in range(sizePop):
+        isAlready=False
         for j in range(sizePop):
             if bestsolScore[j] == solScore[i]:
                 isAlready = True
@@ -370,6 +374,8 @@ while True:
     
     if time.time()>timeout :
         break
+
+print(bestsolScore)
 
 
 secondSol = np.zeros((10,missions))
@@ -403,6 +409,4 @@ for i in range(5):
 print("La meilleure solution est:")
 print(thirdSol[choosenSol])
 
-#TODO final comput
-#TODO better breeding
 #TODO better K in compute_score() 
