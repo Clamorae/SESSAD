@@ -3,14 +3,14 @@ import numpy as np
 import random as rd
 import time
 
-intervenants = 4
-missions = 45
-sizePop = 40
+intervenants = 10
+missions = 100
+sizePop = 80
 timeout = time.time() + 60 * 1
 
-intervenantsCSV = pd.read_csv("./Instances/45-4/Intervenants.csv", header=None)
-missionsCSV = pd.read_csv("./Instances/45-4/Missions.csv", header=None)
-distancesCSV = pd.read_csv("./Instances/45-4/Distances.csv", header=None)
+intervenantsCSV = pd.read_csv("./Instances/100-10/Intervenants.csv", header=None)
+missionsCSV = pd.read_csv("./Instances/100-10/Missions.csv", header=None)
+distancesCSV = pd.read_csv("./Instances/100-10/Distances.csv", header=None)
 
 
 
@@ -241,8 +241,90 @@ def compute_third(solution, missions, intervenants, intervenantsCSV, missionsCSV
         sumWOH = abs(int(intervenantsCSV[3][i])*60 - totWork[i])
 
     result = ((100/45)*sumWOH + (100/(k/intervenants))*(distancetot/intervenants) + (100/(k/intervenants))*distanceMax) /3
+    
     return result
 
+
+
+#-----------------SHOW_SCORE-----------------------------------------------------------------------------------------
+# A function printing information about the last solution this one is called at the very end of the programm
+#-----------------SHOW_SCORE-----------------------------------------------------------------------------------------
+
+def show_score(solution, missions, intervenants, intervenantsCSV, missionsCSV, distancesCSV):
+    score = 0.0
+    firstDailyMission = np.zeros(intervenants)
+    lastMission = np.zeros(intervenants)
+    dailyWorkTime = np.zeros((intervenants,5))
+    nonWorktime = np.zeros(intervenants)
+    overtime = np.zeros(intervenants)
+    totWork = np.zeros(intervenants)
+    distanceIntervenant = np.zeros(intervenants)
+    distancetot = 0.0
+    quotaMean = 0.0
+    k = 0.0
+
+    
+    for i in range (missions):
+      
+        
+        if firstDailyMission[int(solution[i])]!=0:
+            #adding the travel and the travelTime since the last mission
+            distance = float(distancesCSV.values[int(lastMission[int(solution[i])])+1][i+1])/1000
+            tempsTrajet = distance*60/50
+
+            if missionsCSV.values[int(firstDailyMission[int(solution[i])])][1]!=missionsCSV.values[i][1]:
+                firstDailyMission[int(solution[i])]=i
+
+            distanceIntervenant[int(solution[i])] += distance
+            lastMission[int(solution[i])]=i
+            
+        #creating the first mission of the day
+        else:
+            distance = float(distancesCSV.values[0][i+1])/1000
+            distanceIntervenant[int(solution[i])] += distance
+            tempsTrajet = distance*60/50
+            firstDailyMission[int(solution[i])]=i
+            lastMission[int(solution[i])]=i
+        
+        k+=float(distancesCSV.values[0][i+1])/1000
+        k+=float(distancesCSV.values[i+1][0])/1000
+        dailyWorkTime[int(solution[i])][int(missionsCSV.values[i][1])-1] += tempsTrajet + float(missionsCSV.values[i][3]) - float(missionsCSV.values[i][2])
+        
+
+    for i in range (intervenants):
+        #checking the daily overtime
+        for j in range(5):
+            totWork[i]+=dailyWorkTime[i][j]
+
+        if int(intervenantsCSV[3][i])*60 - totWork[i] > 0:
+            nonWorktime[i] = int(intervenantsCSV[3][i])*60 - totWork[i]
+        else:
+            overtime[i] = int(intervenantsCSV[3][i])*60 - totWork[i]
+        
+        quotaMean += float(intervenantsCSV.values[i][3])*60
+        distancetot += distanceIntervenant[i]
+    
+    #calculating the fitness
+    quotaMean = quotaMean / intervenants
+                  
+    SDnonWork = np.std(nonWorktime)
+    SDovertime = np.std(overtime)
+    SDdistance = np.std(distanceIntervenant)
+    score += ((100/quotaMean)*SDnonWork + (100/10*intervenants)*SDovertime + (100/(k/intervenants))*SDdistance)/3
+    
+    #print an overview of the solutions 
+    distancetot = 0.0
+    overtimetot =0.0
+    NWTot =0.0
+    for i in range(intervenants):
+        distancetot += distanceIntervenant[i]
+        overtimetot += overtime[i]
+        NWTot += nonWorktime[i]
+    print("distance :",distancetot)
+    print("overtime :",overtimetot)
+    print("wasted time :",NWTot)
+
+    return score
 
 
 #-----------------MAIN-----------------------------------------------------------------------------------------
@@ -382,8 +464,6 @@ while True:
     #stop the generation of new population when a certain amout of time has passed
     if time.time()>timeout :
         break
-print("Meilleurs Scores pour le premier critère :")
-print(bestsolScore,"\n")
 
 #creation of another array with the ten best solution 
 secondSol = np.zeros((10,missions))
@@ -417,5 +497,6 @@ for i in range(5):
         bestthird = newthird
         choosenSol = i
 
-print("La meilleure solution est:")
+print("La meilleure solution trouvée est:")
 print(thirdSol[choosenSol])
+print("score de la première équation : ",show_score(thirdSol[choosenSol],missions,intervenants,intervenantsCSV,missionsCSV,distancesCSV))
