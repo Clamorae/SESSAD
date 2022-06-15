@@ -125,7 +125,7 @@ def compute_score(solution, missions, intervenants, intervenantsCSV, missionsCSV
 
         # check for the competences' affectation 
         if intervenantsCSV.values[int(solution[i])][1] != missionsCSV.values[i][4]:
-            score+= 999.9
+            score+= 9999.9
         
         
         if firstDailyMission[int(solution[i])]!=0:
