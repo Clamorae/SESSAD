@@ -3,14 +3,14 @@ import numpy as np
 import random as rd
 import time
 
-intervenants = 10
-missions = 100
+intervenants = 6
+missions = 66
 sizePop = 80
 timeout = time.time() + 60 * 1
 
-intervenantsCSV = pd.read_csv("./Instances/100-10/Intervenants.csv", header=None)
-missionsCSV = pd.read_csv("./Instances/100-10/Missions.csv", header=None)
-distancesCSV = pd.read_csv("./Instances/100-10/Distances.csv", header=None)
+intervenantsCSV = pd.read_csv("./Instances/66-6/Interfaces.csv", header=None)
+missionsCSV = pd.read_csv("./Instances/66-6/Missions.csv", header=None)
+distancesCSV = pd.read_csv("./Instances/66-6/Distances.csv", header=None)
 
 
 
